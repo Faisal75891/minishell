@@ -1,8 +1,8 @@
 NAME = m
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 
-S = minishell.c
+S = minishell.c  read_commands.c  utils.c
 O = $(S:.c=.o)
 
 LIBFT = ./libft/libft.a
