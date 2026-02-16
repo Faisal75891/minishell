@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   read_commands.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/16 16:41:38 by fbaras            #+#    #+#             */
+/*   Updated: 2026/02/16 16:41:38 by fbaras           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 char	**get_paths(char **environ)
@@ -67,7 +79,9 @@ char	*get_full_command(char *command,  char **environ)
 char	*read_command(void)
 {
 	char	*command;
+	int		fd;
 
+	fd = open(".history", O_RDONLY);
 	command = get_next_line(0);
 	if (!command)
 		return (NULL);
@@ -77,6 +91,13 @@ char	*read_command(void)
 		return (NULL);
 	}
 	command[ft_strlen(command) - 1] = '\0';
+	if (ft_strncmp(command, "\x1b[A", 3) == 0 || ft_strncmp(command, "\x1b[B", 3) == 0)
+	{
+		write(1, get_next_line(fd), 1000);
+		return (NULL);
+	}
+	add_to_history(command);
+	close(fd);
 	return (command);
 }
 

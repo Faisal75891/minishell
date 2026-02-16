@@ -2,18 +2,19 @@ NAME = m
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
 
-S = minishell.c  read_commands.c  utils.c
+S = minishell.c  read_commands.c  utils.c  history.c
 O = $(S:.c=.o)
 
 LIBFT = ./libft/libft.a
 
 all: $(NAME)
 
-$(NAME): $(O) $(LIBFT)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(NAME): $(LIBFT) $(O)
 	$(CC) $(CFLAGS) $(O) $(LIBFT) -o $(NAME)
 
-%.c: %.o
-	$(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT):
 	make -C ./libft
@@ -22,9 +23,9 @@ clean:
 	make clean -C ./libft
 	rm -rf $(O)
 
-fclean: $(clean)
+fclean: clean
 	rm -rf $(NAME)
 
-re: $(fclean) $(all)
+re: fclean all
 
 .PHONEY: all clean fclean re
