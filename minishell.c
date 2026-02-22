@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 16:41:36 by fbaras            #+#    #+#             */
-/*   Updated: 2026/02/16 16:41:36 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/02/16 14:59:21 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,40 @@
 
 extern char	**environ;
 
-int	main(void)
+void	execute_command(char **arg_list, char **environ)
 {
 	pid_t	pid;
-	char	*command;
+
+	pid = fork();
+	if (pid == 0)
+	{
+		execve(arg_list[0], arg_list, environ);
+		printf("no such file or directory\n");
+		exit(1);
+	}
+	else if (pid > 0)
+		wait(NULL);
+	else
+		printf("fork failed\n");
+}
+
+int	handle_command(char *command, char **environ)
+{
 	char	**arg_list;
+
+	if (ft_strncmp(command, "exit", 5) == 0)
+		return (1);
+	arg_list = get_args(command, environ);
+	if (!arg_list)
+		return (0);
+	execute_command(arg_list, environ);
+	free_split(arg_list);
+	return (0);
+}
+
+int	main(void)
+{
+	char	*command;
 
 	while (1)
 	{
@@ -26,19 +55,12 @@ int	main(void)
 		command = read_command();
 		if (!command)
 			continue ;
-		arg_list = get_args(command, environ);
-		if (!arg_list)
-			return (1);
-		pid = fork();
-		if (pid == 0)
+		if (handle_command(command, environ))
 		{
-			execve(arg_list[0], arg_list, environ);
-			printf("no such file or directory\n");
+			free(command);
+			break ;
 		}
-		else
-			wait(NULL);
 		free(command);
-		free_split(arg_list);
 	}
 	return (0);
 }

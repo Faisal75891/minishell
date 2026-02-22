@@ -6,62 +6,14 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 16:41:38 by fbaras            #+#    #+#             */
-/*   Updated: 2026/02/16 16:41:38 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/02/16 14:59:21 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**get_paths(char **environ)
-{
-	char	**paths;
-	int		i;
-
-	paths = NULL;
-	i = 0;
-	while (environ[i])
-	{
-		if (!ft_strncmp(environ[i], "PATH=", 5))
-		{
-			paths = ft_split(environ[i] + 5, ':');
-			if (!paths)
-				return (NULL);
-			break ;
-		}
-		i++;
-	}
-	return (paths);
-}
-
-char	*get_full_path(char *command, char **paths)
-{
-	int		i;
-	char	*temp_cmd;
-	char	*full_path;
-
-	if (!paths)
-		return (NULL);
-	i = 0;
-	temp_cmd = ft_strjoin("/", command);
-	if (!temp_cmd)
-		return (NULL);
-	while (paths[i])
-	{
-		full_path = ft_strjoin(paths[i], temp_cmd);
-		if (access(full_path, X_OK) == 0)
-		{
-			free(temp_cmd);
-			return (full_path);
-		}
-		free(full_path);
-		i++;
-	}
-	free(temp_cmd);
-	return (NULL);
-}
-
 // PATH is ":" seperated
-char	*get_full_command(char *command,  char **environ)
+char	*get_full_command(char *command, char **environ)
 {
 	char	**paths;
 	char	*full_path;
@@ -76,12 +28,29 @@ char	*get_full_command(char *command,  char **environ)
 	return (full_path);
 }
 
+int	is_history_key(char *command)
+{
+	char	*history_line;
+	int		fd;
+
+	if (ft_strncmp(command, "\x1b[A", 3) != 0
+		&& ft_strncmp(command, "\x1b[B", 3) != 0)
+		return (0);
+	fd = open(".history", O_RDONLY);
+	if (fd >= 0)
+	{
+		history_line = get_next_line(fd);
+		if (history_line)
+			free(history_line);
+		close(fd);
+	}
+	return (1);
+}
+
 char	*read_command(void)
 {
 	char	*command;
-	int		fd;
 
-	fd = open(".history", O_RDONLY);
 	command = get_next_line(0);
 	if (!command)
 		return (NULL);
@@ -91,13 +60,12 @@ char	*read_command(void)
 		return (NULL);
 	}
 	command[ft_strlen(command) - 1] = '\0';
-	if (ft_strncmp(command, "\x1b[A", 3) == 0 || ft_strncmp(command, "\x1b[B", 3) == 0)
+	if (is_history_key(command))
 	{
-		write(1, get_next_line(fd), 1000);
+		free(command);
 		return (NULL);
 	}
 	add_to_history(command);
-	close(fd);
 	return (command);
 }
 
