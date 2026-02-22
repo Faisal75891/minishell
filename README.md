@@ -32,8 +32,7 @@ history.c        → command history dump
 
 ### bugs squashed:
 - ✅ memory leaks in `read_command()` 
-- ✅ `fork()` with no error handling (yikes)
-- ✅ `.history` file didn't exist → added `O_CREAT`
+- ✅ `fork()` with no error handling -> low IQ move
 - ✅ typo `.PHONEY` → `.PHONY`
 
 ### refactor for norminette (≤25 lines):
