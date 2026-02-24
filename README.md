@@ -7,9 +7,9 @@ basic shell clone, bash but make it baby mode. only runs commands rn.
 ## how to use
 
 ```bash
-make        # build it
-./m         # run it
-exit        # peace out
+make
+./m
+exit        
 ```
 
 ## what's happening
@@ -22,38 +22,41 @@ exit        # peace out
 ### file structure
 
 ```
-minishell.c      → main loop, fork/execve magic
-read_commands.c  → parsing commands, reading input
-utils.c          → helper functions (PATH search, memory cleanup)
-history.c        → command history dump
+src/
+├── main/           → entry point, main loop
+├── parsing/        → lexer, parser, quote/expansion flex
+├── execution/      → executor, pipes, redirects go brr
+├── builtins/       → cd, echo, pwd, export, unset, env, exit
+├── signals/        → Ctrl+C/D/\ handling
+└── utils/          → PATH search, env vars, cleanup, history
+include/            → minishell.h gang
+libft/              → custom C library (ft_* functions)
 ```
-
-## what got fixed
 
 ### bugs squashed:
 - ✅ memory leaks in `read_command()` 
-- ✅ `fork()` with no error handling -> low IQ move
+- ✅ `fork()` with no error handling
 - ✅ typo `.PHONEY` → `.PHONY`
 
-### refactor for norminette (≤25 lines):
-- split `main()` into 3 functions
-- broke down `read_command()` (extracted `is_history_key()`)
-- moved `get_paths()` and `get_full_path()` to `utils.c`
+### big refactor:
+- reorganized into clean folder structure (src/, include/, libft/)
+- split code into modules (parsing, execution, builtins, utils)
 
 ### what actually works:
-- basic commands (`ls`, `pwd`, `cat` etc)
-- `exit` command
-- PATH lookup
-- history (literally just a log file)
+- basic commands (`ls`, `pwd`, `cat`, etc.)
+- `exit` command 
+- PATH lookup (finds ur binaries automatically)
+- command history (logs to `.history` file)
 
-## todo later
+## coming soon
 
-- [ ] history navigation (up/down arrows)
-- [ ] pipes `|`
-- [ ] redirects `>`, `<`, `>>`
-- [ ] builtin commands (`cd`, `export`, `env`)
-- [ ] quotes and escaping
+- [ ] pipes `|` (chain commands fr fr)
+- [ ] redirects `>`, `<`, `>>` (file I/O szn)
+- [ ] builtin commands (`cd`, `echo`, `pwd`, `export`, `unset`, `env`, `exit`)
+- [ ] quotes handling (single + double quotes)
+- [ ] environment variable expansion (`$VAR`, `$?`)
+- [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap)
 
 ---
 
-**status:** base version slaps, ready to build on 💀💀💀
+**status:** project restructured and clean af, ready to code the actual features 💀🔥
