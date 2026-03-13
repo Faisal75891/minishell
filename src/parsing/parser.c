@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/02/25 00:00:00 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/03/13 22:32:57 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,25 +27,6 @@ char	*get_full_command(char *command, char **environ)
 	return (full_path);
 }
 
-int	is_history_key(char *command)
-{
-	char	*history_line;
-	int		fd;
-
-	if (ft_strncmp(command, "\x1b[A", 3) != 0
-		&& ft_strncmp(command, "\x1b[B", 3) != 0)
-		return (0);
-	fd = open(".history", O_RDONLY);
-	if (fd >= 0)
-	{
-		history_line = get_next_line(fd);
-		if (history_line)
-			free(history_line);
-		close(fd);
-	}
-	return (1);
-}
-
 char	*read_command(void)
 {
 	char	*command;
@@ -59,11 +40,6 @@ char	*read_command(void)
 		return (NULL);
 	}
 	command[ft_strlen(command) - 1] = '\0';
-	if (is_history_key(command))
-	{
-		free(command);
-		return (NULL);
-	}
 	add_to_history(command);
 	return (command);
 }

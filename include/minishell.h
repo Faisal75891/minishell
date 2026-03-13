@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/02/25 00:00:00 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/03/13 22:08:07 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 # include <sys/wait.h>
 # include <fcntl.h>
 # include "../libft/libft.h"
-
+# include <readline/readline.h>
+# include <readline/history.h>
 
 // cleanup.c
 void	free_split(char **arr);
