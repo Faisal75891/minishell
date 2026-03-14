@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/13 22:32:57 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/15 02:00:41 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,21 +27,10 @@ char	*get_full_command(char *command, char **environ)
 	return (full_path);
 }
 
+// Don't need this anymore lil bro
 char	*read_command(void)
 {
-	char	*command;
-
-	command = get_next_line(0);
-	if (!command)
-		return (NULL);
-	if (ft_strlen(command) <= 1)
-	{
-		free(command);
-		return (NULL);
-	}
-	command[ft_strlen(command) - 1] = '\0';
-	add_to_history(command);
-	return (command);
+	return (NULL);
 }
 
 char	**get_args(char *command, char **environ)

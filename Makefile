@@ -25,7 +25,6 @@ SRCS		= $(SRC_DIR)/main/main.c \
 			  $(SRC_DIR)/utils/cleanup.c \
 			  $(SRC_DIR)/utils/env_utils.c \
 			  $(SRC_DIR)/utils/error_utils.c \
-			  $(SRC_DIR)/utils/history.c
 
 OBJS		= $(SRCS:.c=.o)
 LIBFT		= $(LIBFT_DIR)/libft.a
