@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/13 22:32:10 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/13 22:41:28 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@ extern char	**environ;
 int	main(void)
 {
 	char	*command;
+	char	*last_command;
 
+	last_command = NULL;
 	while (1)
 	{
 		// TODO: handle ctrl + c signal and make it 
@@ -29,7 +31,8 @@ int	main(void)
 			free(command);
 			continue ;
 		}
-		add_history(command); // TODO: handle consequetive same commands. Don't keep duplicate
+		if (!last || ft_strncmp(last_command, command))
+			last_command = add_history(command);
 		if (handle_command(command, environ))
 		{
 			free(command);
