@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/15 02:37:32 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/22 09:58:15 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,14 +58,22 @@ int	handle_command(char *command, t_shell *shell)
 	char	**arg_list;
 
 	if (ft_strncmp(command, "exit", 5) == 0)
-		return (1);
-	arg_list = get_args(command, shell->env);
-	if (!arg_list)
 	{
 		shell->last_status = 1;
-		return (0);
+		return (1);
 	}
-	shell->last_status = execute_command(arg_list, shell);
-	free_split(arg_list);
+	if (has_pipe(command))
+		shell->last_status = run_pipeline(command, shell);
+	else
+	{
+		arg_list = get_args(command, shell->env);
+		if (!arg_list)
+		{
+			shell->last_status = 1;
+			return (0);
+		}	
+		shell->last_status = execute_command(arg_list, shell);
+		free_split(arg_list);
+	}
 	return (0);
 }

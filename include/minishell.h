@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/15 02:30:03 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/22 09:40:36 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,27 @@
 // and the status of the last command.
 typedef struct s_shell
 {
-    char    **env;
-    int     last_status;
+	char    **env;
+	int     last_status;
 }   t_shell;
+
+// will use later for norminette
+// typedef struct s_piping
+// {
+// 	char	**argv;
+// 	int		argc;
+// 	int		index;
+// 	t_shell	*shell;
+// 	int		pipe[2];
+// }	t_piping;
+
+// pipe_utils
+void	close_if_open(int *fd);
+void	dup_and_close(int fd1, int fd2);
 
 // cleanup.c
 void	free_split(char **arr);
+int		split_len(char **arr);
 
 // path_utils.c
 char	**get_paths(char **environ);
@@ -47,7 +62,6 @@ char	*get_full_path(char *command, char **paths);
 char	*get_full_command(char *command, char **environ);
 char	*read_command(void);
 char	**get_args(char *command, char **environ);
-int		is_history_key(char *command);
 
 // lexer.c - TODO
 // quotes.c - TODO
@@ -59,6 +73,9 @@ int		handle_command(char *command, t_shell *shell);
 int 	execute_command(char **arg_list, t_shell *shell);
 
 // pipes.c - TODO
+int		has_pipe(char *command);
+int		run_pipeline(char	*command, t_shell *shell);
+
 // redirects.c - TODO
 
 

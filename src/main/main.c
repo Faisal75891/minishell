@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/15 02:34:44 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/22 09:45:57 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ int	main(int argc, char **argv, char **envp)
 			free(command);
 			break ;
 		}
+		add_history(command);
 		printf("last exit status: %d\n", shell->last_status);
 		free(command);
 	}
