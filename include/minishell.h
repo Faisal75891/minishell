@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/22 09:40:36 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/23 01:05:00 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MINISHELL_H
 
 # include <stdio.h>
+#include <signal.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <sys/types.h>
@@ -54,19 +55,18 @@ int		split_len(char **arr);
 char	**get_paths(char **environ);
 char	*get_full_path(char *command, char **paths);
 
-// env_utils.c - TODO
-// error_utils.c - TODO
-
+// env_utils.c
+char	*get_env_value(const char *name, char **env);
 
 // parser.c
 char	*get_full_command(char *command, char **environ);
 char	*read_command(void);
-char	**get_args(char *command, char **environ);
+char	**get_args(char *command, t_shell *shell);
 
 // lexer.c - TODO
 // quotes.c - TODO
-// expansion.c - TODO
-
+// expansion.c
+char	*expand_variables(const char *s, t_shell *shell);
 
 // executor.c
 int		handle_command(char *command, t_shell *shell);
@@ -91,5 +91,14 @@ int		run_pipeline(char	*command, t_shell *shell);
 char	**copy_env(char **envp);
 
 // signals.c - TODO
+void	handle_ctrl_c(int sig);
+void	handle_ctrl_slash(int sig);
+
+// error_utils.c
+char	*ms_strappend_free(char *s1, char *s2);
+char	*ms_strappend_char(char *s, char c);
+
+int	ms_is_var_char(int c, int first);
+int	ms_str_has_dollar(const char *s);
 
 #endif

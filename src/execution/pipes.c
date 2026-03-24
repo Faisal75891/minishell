@@ -57,7 +57,7 @@ static void	exec_child(char *command, t_shell *shell)
 {
 	char	**arg_list;
 
-	arg_list = get_args(command, shell->env);
+	arg_list = get_args(command, shell);
 	if (!arg_list)
 		exit (1);
 	execve(arg_list[0], arg_list, shell->env);
@@ -156,7 +156,11 @@ int	run_pipeline(char	*command, t_shell *shell)
 		}
 		pid = fork();
 		if (pid == 0)
+		{
+			signal(SIGINT, SIG_DFL);
+			signal(SIGQUIT, SIG_DFL);
 			pipeline(cmds[i], shell, prev_pipe, pipe_fd, i, n);
+		}
 		else if (pid < 0)
 		{
 			close_if_open(&prev_pipe);
