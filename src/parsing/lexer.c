@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/25 18:10:55 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/26 11:05:16 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/26 12:44:39 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,39 +26,28 @@ t_lex_result	*init_lexer(void)
 	return (lex);
 }
 
-t_token	*create_token(t_token_type type, t_quote_type quote, char *word)
+static int	handle_operator(char *command, t_lex_result *lexer, int index)
 {
-	t_token	*token;
+	int	i;
 
-	token = malloc (sizeof(t_token));
-	if (!token)
-		return (NULL);
-	token->type = type;
-	token->quote = quote;
-	token->word = ft_strdup(word);
-	token->next = NULL;
-	return (token);
-}
-
-void	append_token(t_lex_result *lexer, t_token *token)
-{
-	if (lexer->count == 0)
+	i = index;
+	if (command[i] == '<' && command[i + 1] && command[i + 1] == '<')
 	{
-		lexer->head = token;
-		lexer->tail = token;
-		lexer->head->next = NULL;
+		add_here_doc(lexer);
+		i += 2;
 	}
-	else if (lexer->count == 1)
+	if (command[i] == '>' && command[i + 1] && command[i + 1] == '>')
 	{
-		lexer->tail = token;
-		lexer->head->next = lexer->tail;
+		add_append(lexer);
+		i += 2;
 	}
-	else
-	{
-		lexer->tail->next = token;
-		lexer->tail = token;
-	}
-	lexer->count++;
+	if (command[i] == '|')
+		return (add_pipe(lexer), i + 1);
+	if (command[i] == '>')
+		return (add_redirect_out(lexer), i + 1);
+	if (command[i] == '<')
+		return (add_redirect_in(lexer), i + 1);
+	return (i);
 }
 
 // example command: cat << EOF > file.txt
@@ -66,6 +55,7 @@ void	append_token(t_lex_result *lexer, t_token *token)
 void	tokenize_lexer(char *command, t_lex_result *lexer)
 {
 	int	i;
+	int	new_i;
 
 	i = 0;
 	while (command[i])
@@ -73,37 +63,13 @@ void	tokenize_lexer(char *command, t_lex_result *lexer)
 		if (ft_isspace(command[i]))
 		{
 			i++;
-			continue;
-		}
-		if (command[i] == '<' && command[i + 1] && command[i + 1] == '<')
-		{
-			add_here_doc(lexer);
-			i += 2;
-			continue;
-		}
-		if (command[i] == '>' && command[i + 1] && command[i + 1] == '>')
-		{
-			add_append(lexer);
-			i += 2;
-			continue;
-		}
-		if (command[i] == '|')
-		{
-			add_pipe(lexer);
-			i++;
 			continue ;
 		}
-		if (command[i] == '>')
+		new_i = handle_operator(command, lexer, i);
+		if (new_i != i)
 		{
-			add_redirect_out(lexer);
-			i++;
-			continue;
-		}
-		if (command[i] == '<')
-		{
-			add_redirect_in(lexer);
-			i++;
-			continue;
+			i = new_i;
+			continue ;
 		}
 		if (!add_word(command, lexer, &i))
 			return ;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/23 00:30:00 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/03/26 12:53:25 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,27 @@ char	*ms_strappend_char(char *s, char c)
 	free(s);
 	return (tmp);
 }
+
+int	word_fail(t_lex_result *lexer, char *buffer, int err)
+{
+	if (buffer)
+		free(buffer);
+	lexer->error = err;
+	return (0);
+}
+
+int	word_commit(t_lex_result *lexer, char *buffer)
+{
+	t_token	*token;
+
+	token = create_token(TOK_WORD, Q_NONE, buffer);
+	if (!token)
+		return (word_fail(lexer, buffer, 1));
+	append_token(lexer, token);
+	free(buffer);
+	return (1);
+}
+
+
 
 // TODO: add proper error-printing helpers later

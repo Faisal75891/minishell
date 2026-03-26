@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/26 11:07:05 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/26 12:53:57 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,10 @@ void	handle_ctrl_slash(int sig);
 // error_utils.c
 char	*ms_strappend_free(char *s1, char *s2);
 char	*ms_strappend_char(char *s, char c);
+int		word_fail(t_lex_result *lexer, char *buffer, int err);
+int		word_commit(t_lex_result *lexer, char *buffer);
+
+
 
 int		ms_is_var_char(int c, int first);
 
