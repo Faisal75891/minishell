@@ -2,7 +2,7 @@
 
 ## what is this
 
-basic shell clone, bash but make it baby mode. only runs commands rn.
+basic shell clone, bash but make it baby mode. only runs commands rn. typeshit
 
 ## how to use
 
@@ -63,29 +63,11 @@ libft/              → custom C library (ft_* functions)
 - exit status logic:
   - normal exit → code as is
   - killed by signal → `128 + signal` (bash style)
-
-### current issue (why it's still shit):
-
-inside minishell right now:
-
-```bash
-$ ls
-DEBUG: handle_command called
-DEBUG arg_list[0]: [ls]
-execve: No such file or directory
-
-$ pwd
-DEBUG: handle_command called
-DEBUG arg_list[0]: [pwd]
-execve: No such file or directory
-```
-
-so yeah:
-- parsing is fine (`"ls"`, `"pwd"` land in `arg_list[0]`)
-- `fork()` is fine
-- we *do* hit `execve`, but it still says `No such file or directory` even for basic stuff
-
-aka: PATH/env logic is sus. `get_full_command()` / `copy_env` / `get_paths` need love so `ls` → `/bin/ls` instead of dead `execve("ls", ...)`.
+- Lexer *(NEW)*:
+  - Creates a linked list of command
+  - tokenizes input into tokens or words
+  - Each node has the type of token and the type of quote Which makes it easier to do variable expansions.
+  - NOTE: It is still not added to the code. Parsing will need to be redone to be compatible with the lexer.
 
 ## coming soon
 

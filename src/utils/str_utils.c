@@ -27,3 +27,13 @@ int	ms_str_has_dollar(const char *s)
 	}
 	return (0);
 }
+
+int	ft_isspace(char c)
+{
+	return (c == ' ' || (c >= 9 && c <= 13));
+}
+
+int	is_operator_char(char c)
+{
+	return (c == '|' || c == '<' || c == '>');
+}

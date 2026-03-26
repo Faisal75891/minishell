@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/23 00:00:00 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/25 14:46:40 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,16 +39,6 @@ char	**get_args(char *command, t_shell *shell)
 	if (!arg_list || !arg_list[0])
 		return (arg_list);
 	// variable expansion on each argument
-	int j = 0;
-	while (arg_list[j])
-	{
-		ft_putstr_fd("DEBUG arg_list[", 2);
-		ft_putnbr_fd(j, 2);
-		ft_putstr_fd("]: [", 2);
-		ft_putstr_fd(arg_list[j], 2);
-		ft_putstr_fd("]\n", 2);
-		j++;
-	}
 	i = 0;
 	while (arg_list[i])
 	{
@@ -58,7 +48,7 @@ char	**get_args(char *command, t_shell *shell)
 			free(arg_list[i]);
 			arg_list[i] = expanded;
 		}
-		i++;
+		i++; 
 	}
 	raw_cmd = arg_list[0];
 	full_cmd = get_full_command(raw_cmd, shell->env);

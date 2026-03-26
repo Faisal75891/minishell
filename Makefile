@@ -27,7 +27,8 @@ SRCS		= $(SRC_DIR)/main/main.c \
               $(SRC_DIR)/utils/error_utils.c \
               $(SRC_DIR)/utils/pipe_utils.c \
               $(SRC_DIR)/utils/char_utils.c \
-              $(SRC_DIR)/utils/str_utils.c
+              $(SRC_DIR)/utils/str_utils.c \
+              $(SRC_DIR)/utils/lexer_utils.c \
 
 OBJS		= $(SRCS:.c=.o)
 LIBFT		= $(LIBFT_DIR)/libft.a

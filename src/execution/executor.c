@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/23 01:35:00 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/03/25 13:57:20 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,9 @@ int	execute_command(char **arg_list, t_shell *shell)
 
 int	handle_command(char *command, t_shell *shell)
 {
-	ft_putendl_fd("DEBUG: handle_command called", 2);
 	char	**arg_list;
 
+	printf("%s\n", command);
 	if (ft_strncmp(command, "exit", 5) == 0)
 		return (1);
 	if (has_pipe(command))
@@ -53,6 +53,8 @@ int	handle_command(char *command, t_shell *shell)
 	else
 	{
 		arg_list = get_args(command, shell);
+		for (int i = 0; arg_list[i]; i++)
+			printf("%d. %s\n", i, arg_list[i]);
 		if (!arg_list)
 		{
 			shell->last_status = 1;
