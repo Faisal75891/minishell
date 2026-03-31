@@ -15,16 +15,19 @@
 // TODO: env builtin
 // - print all environment variables
 
-void	env(char **env)
+int ms_env(t_shell *shell, char **args)
 {
-	int	i;
+	int i;
 
-	if (!env)
-		return ;
+	(void)args;
+	if (!shell || !shell->env)
+		return (1);
 	i = 0;
-	while (env[i])
+	while (shell->env[i])
 	{
-		printf("%s\n", env[i]);
+		if (ft_strchr(shell->env[i], '='))
+			printf("%s\n", shell->env[i]);
 		i++;
 	}
+	return (0);
 }
