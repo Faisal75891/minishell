@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/26 12:53:57 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/03/30 14:34:35 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,28 @@ typedef struct s_token
 	char					*word;
 }	t_token;
 
+typedef struct s_redirections
+{
+	char			*target;
+	t_token_type	type;
+}	t_redirections;
+
+typedef struct s_commands
+{
+	char				**argv;
+	int					argc;
+	t_redirections		*redirections;
+	int					redirections_count;
+	int					heredoc;
+}	t_commands;
+
+typedef struct s_parsed_result
+{
+	t_commands	*commands;
+	int			command_count;
+	int			command_error;
+}	t_parsed_result;
+
 typedef struct s_lex_result
 {
 	t_token	*head;
@@ -83,9 +105,12 @@ char	*get_full_path(char *command, char **paths);
 char	*get_env_value(const char *name, char **env);
 
 // parser.c
-char	*get_full_command(char *command, char **environ);
-char	*read_command(void);
-char	**get_args(char *command, t_shell *shell);
+t_parsed_result	*parser(t_lex_result *lexer, t_shell *shell);
+
+// old parser.
+char			*get_full_command(char *command, char **environ);
+char			*read_command(void);
+char			**get_args(char *command, t_shell *shell);
 
 // lexer.c
 // HELLO. IF YOU HAVE BETTER NAMES YOU CAN CHANGE
@@ -145,6 +170,7 @@ int		ms_is_var_char(int c, int first);
 // str_utils.c
 int		ft_isspace(char c);
 int		is_operator_char(char c);
+int		is_redirect(t_token_type token);
 int		ms_str_has_dollar(const char *s);
 
 #endif

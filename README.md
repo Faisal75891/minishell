@@ -67,7 +67,18 @@ libft/              → custom C library (ft_* functions)
   - Creates a linked list of command
   - tokenizes input into tokens or words
   - Each node has the type of token and the type of quote Which makes it easier to do variable expansions.
-  - NOTE: It is still not added to the code. Parsing will need to be redone to be compatible with the lexer.
+- Parser *(NEW)*:
+  - Parses the values inside the lexer.
+  - It handles syntax errors in the command.
+  - Commands are split into smaller parts.
+  - Commands are split by the '|' delimiter
+  - each command has ints own argv, redirections array.
+  - e.g:
+  - Input: Cat > out.txt | grep a >> EOF | ls
+  - Will become 3 commands split as follow: 
+  -     argv 1: ["cat", NULL], redirections: [">", "out.txt"]
+  -     argv 2: ["grep", "a", NULL], redirections: ["<<", "EOF"]
+  -     argv 3: ["ls", NULL], redirections: NULL
 
 ## coming soon
 
