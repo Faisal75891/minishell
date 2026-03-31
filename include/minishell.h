@@ -142,7 +142,14 @@ int		run_pipeline(char	*command, t_shell *shell);
 
 // redirects.c - TODO
 
-// cd.c - TODO
+// builtins
+int		ms_cd(t_shell *shell, char **args);
+int		ms_echo(t_shell *shell, char **args);
+int		ms_env(t_shell *shell, char **args);
+int		ms_export(t_shell *shell, char **args);
+int		ms_pwd(t_shell *shell, char **args);
+int		ms_unset(t_shell *shell, char **args);
+int		ms_exit(t_shell *shell, char **args);
 // echo.c - TODO
 // env.c - TODO
 // export.c - TODO

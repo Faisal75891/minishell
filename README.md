@@ -17,7 +17,7 @@ exit
 ### the vibe
 - read input → parse it → **expand `$`** → fork it → execute it
 - saves ur commands to `.history` (just logging for now)
-- tries to find commands in `PATH` automatically (but PATH/env is a bit cooked rn)
+- tries to find commands in `PATH` automatically (now hooked up properly no cap)
 
 ### file structure
 
@@ -38,12 +38,15 @@ libft/              → custom C library (ft_* functions)
 - ✅ `fork()` with no error handling
 - ✅ typo `.PHONEY` → `.PHONY`
 - ✅ main loop, now using `t_shell` (env + last_status)
+- ✅ wired builtins to the executor so they actually run instead of getting eaten by `execve`
+- ✅ fixed `PATH` resolution so `execve` stops malding and actually runs external commands like `ls`
 
 ### big refactor:
 - reorganized into clean folder structure (src/, include/, libft/)
 - split code into modules (parsing, execution, builtins, utils)
 - added env/utils helpers (`env_utils`, `path_utils`, `char_utils`, `str_utils`, `error_utils`)
 - wired `$VAR`, `$?`, `$$` expansion into the arg parser
+- hooked up all builtins (`cd`, `pwd`, `echo`, `env`, `export`, `unset`, `exit`) natively inside the main shell process
 
 ### what actually works:
 - basic main loop with `readline("$ ")`
@@ -58,7 +61,8 @@ libft/              → custom C library (ft_* functions)
   - simple split by spaces (no quotes yet, cope)
   - each arg goes through expansion
 - execution:
-  - single commands go through `execute_command` (fork + execve + wait)
+  - builtins (`cd`, `echo`, `env`, etc.) bypass forks and run in the parent thread
+  - external commands dynamically translate through `PATH` env and run safely via `execve`
   - pipelines via `run_pipeline` and `wait_all` (last command status bubbles up)
 - exit status logic:
   - normal exit → code as is
@@ -84,13 +88,11 @@ libft/              → custom C library (ft_* functions)
 
 - [ ] pipes `|` (chain commands fr fr) **– core already there, needs polish & testing**
 - [ ] redirects `>`, `<`, `>>` (file I/O szn)
-- [ ] builtin commands (`cd`, `echo`, `pwd`, `export`, `unset`, `env`, `exit`) **– files exist, logic WIP**
 - [ ] quotes handling (single + double quotes)
 - [ ] environment variable expansion (`$VAR`, `$?`) **– mostly done, edge-cases & quotes left**
 - [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap) **– handlers exist, disabled in main for now**
-- [ ] fix PATH/env so `execve` stops malding on `ls`/`pwd`
 - [ ] yeet debug spam once exec layer is stable
 
 ---
 
-**status:** project restructured and clean af, parsing/expansion/executor pipeline mostly built, but env/PATH is half-baked so `execve` is still salty. it runs, but it’s trash
+**status:** project restructured and clean af, executor pipeline is getting un-cooked. builtins and external `PATH` mapping are fully online, so `ls` and `cd` actually do things now instead of segfaulting. execve is fixed but we still gotta lock in pipes & redirects to make it a real shell vibe.
