@@ -26,7 +26,7 @@ void	dup_and_close(int fd1, int fd2)
 {
 	if (fd1 == -1)
 	{
-		ft_putstr_fd("pipex: dup_and_close: invalid fd\n", 2);
+		ft_putstr_fd("minishell: dup_and_close: invalid fd\n", 2);
 		exit(EXIT_FAILURE);
 	}
 	if (dup2(fd1, fd2) == -1)

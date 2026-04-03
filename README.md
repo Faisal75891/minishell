@@ -67,7 +67,7 @@ libft/              → custom C library (ft_* functions)
 - exit status logic:
   - normal exit → code as is
   - killed by signal → `128 + signal` (bash style)
-- Lexer *(NEW)*:
+- Lexer:
   - Creates a linked list of command
   - tokenizes input into tokens or words
   - Each node has the type of token and the type of quote Which makes it easier to do variable expansions.
@@ -83,6 +83,10 @@ libft/              → custom C library (ft_* functions)
   -     argv 1: ["cat", NULL], redirections: [">", "out.txt"]
   -     argv 2: ["grep", "a", NULL], redirections: ["<<", "EOF"]
   -     argv 3: ["ls", NULL], redirections: NULL
+- New_executor *(NEW)*:
+  - This new executor uses the new parsed structure
+  - It executes commands. typeshit.
+  - It still needs work like error detection and memory leaks.
 
 ## coming soon
 

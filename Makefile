@@ -4,7 +4,7 @@ INCLUDES	= -I./include -I./libft
 SRC_DIR		= src
 LIBFT_DIR	= libft
 
-SRCS		= $(SRC_DIR)/main/main.c \
+SRCS		= test_executor.c \
               $(SRC_DIR)/main/init.c \
               $(SRC_DIR)/parsing/parser.c \
               $(SRC_DIR)/parsing/lexer.c \
@@ -13,6 +13,7 @@ SRCS		= $(SRC_DIR)/main/main.c \
               $(SRC_DIR)/execution/executor.c \
               $(SRC_DIR)/execution/pipes.c \
               $(SRC_DIR)/execution/redirects.c \
+              $(SRC_DIR)/execution/new_executor.c \
               $(SRC_DIR)/builtins/cd.c \
               $(SRC_DIR)/builtins/echo.c \
               $(SRC_DIR)/builtins/env.c \

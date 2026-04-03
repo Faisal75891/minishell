@@ -121,6 +121,7 @@ int main(int argc, char **argv, char **envp)
     int i = 0;
     while (i < 7)
     {
+        printf("case: %s\n", cases[i]);
         tokenize_lexer(cases[i], lex);
         parsed = parser(lex, shell);
         print_parsed(parsed);
