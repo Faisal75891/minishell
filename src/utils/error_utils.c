@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/26 12:53:25 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/04 17:52:10 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,11 @@ int	word_fail(t_lex_result *lexer, char *buffer, int err)
 	return (0);
 }
 
-int	word_commit(t_lex_result *lexer, char *buffer)
+int	word_commit(t_lex_result *lexer, char *buffer, int quote)
 {
 	t_token	*token;
 
-	token = create_token(TOK_WORD, Q_NONE, buffer);
+	token = create_token(TOK_WORD, quote, buffer);
 	if (!token)
 		return (word_fail(lexer, buffer, 1));
 	append_token(lexer, token);

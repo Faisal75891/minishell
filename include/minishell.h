@@ -86,6 +86,7 @@ typedef struct s_lex_result
 	t_token	*tail;
 	int		count;
 	int		error;
+	char	*unexpected_token;
 	//char	*error_msg;
 }	t_lex_result;
 
@@ -115,9 +116,9 @@ char			**get_args(char *command, t_shell *shell);
 // lexer.c
 // HELLO. IF YOU HAVE BETTER NAMES YOU CAN CHANGE
 t_lex_result	*init_lexer(void);
-t_token			*create_token(t_token_type type, t_quote_type quote, char *word);
+t_token			*create_token(t_token_type type, t_quote_type quote, const char *word);
 void			append_token(t_lex_result *lexer, t_token *token);
-void			tokenize_lexer(char *command, t_lex_result *lexer);
+void			tokenize_lexer(const char *command, t_lex_result *lexer);
 void			clear_lexer(t_lex_result *lexer);
 // lexer_utils.c
 void	add_here_doc(t_lex_result *lexer);
@@ -127,8 +128,8 @@ void	add_redirect_out(t_lex_result *lexer);
 void	add_redirect_in(t_lex_result *lexer);
 
 
-// quotes.c - TODO
-int				add_word(char *command, t_lex_result *lexer, int *i);
+// quotes.c
+int				add_word(const char *command, t_lex_result *lexer, int *i);
 // expansion.c
 char	*expand_variables(const char *s, t_shell *shell);
 
@@ -168,7 +169,7 @@ void	handle_ctrl_slash(int sig);
 char	*ms_strappend_free(char *s1, char *s2);
 char	*ms_strappend_char(char *s, char c);
 int		word_fail(t_lex_result *lexer, char *buffer, int err);
-int		word_commit(t_lex_result *lexer, char *buffer);
+int		word_commit(t_lex_result *lexer, char *buffer, int);
 
 
 

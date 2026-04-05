@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/26 10:24:39 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/26 12:54:08 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/05 12:38:45 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 // - handle double quotes (with expansion) ----------DONE
 // - handle escaped characters ----------------------.(Do we need this?)
 
-t_token	*create_token(t_token_type type, t_quote_type quote, char *word)
+t_token	*create_token(t_token_type type, t_quote_type quote, const char *word)
 {
 	t_token	*token;
 
@@ -27,6 +27,11 @@ t_token	*create_token(t_token_type type, t_quote_type quote, char *word)
 	token->type = type;
 	token->quote = quote;
 	token->word = ft_strdup(word);
+	if (!token->word)
+	{
+		free(token);
+		return (NULL);
+	}
 	token->next = NULL;
 	return (token);
 }
@@ -69,35 +74,57 @@ static int	is_quote(char c, int quote)
 	return (quote);
 }
 
-static int	scan_word_segment(char *command, char **buffer, int *i)
+static int	scan_word_segment(const char *command, char **buffer, int *i)
 {
 	int	quote;
 	int	new_quote;
+	int	consumed;
 
 	quote = 0;
 	while (command[*i])
 	{
+		consumed = 1;
 		if (quote == 0
 			&& (ft_isspace(command[*i])
 				|| is_operator_char(command[*i])))
 			break ;
-		new_quote = is_quote(command[*i], quote);
-		if (new_quote != quote)
+		if (command[*i] == '\\' && quote != '\'')
 		{
-			quote = new_quote;
-			(*i)++;
-			continue ;
+			if (command[*i + 1])
+			{
+				*buffer = ms_strappend_char(*buffer, command[*i]);
+				if (!*buffer)
+					return (-1);
+				consumed = 2;
+			}
+			else
+			{
+				*buffer = ms_strappend_char(*buffer, command[*i]);
+				if (!*buffer)
+					return (-1);
+			}
 		}
-		*buffer = ms_strappend_char(*buffer, command[*i]);
-		if (!*buffer)
-			return (-1);
-		(*i)++;
+		else
+		{
+			new_quote = is_quote(command[*i], quote);
+			if (new_quote != quote)
+				quote = new_quote;
+			else
+			{
+				*buffer = ms_strappend_char(*buffer, command[*i]);
+				if (!*buffer)
+					return (-1);
+			}
+		}
+		(*i) += consumed;
 	}
+	if (quote != 0)
+		return (1);
 	return (quote);
 }
 
 // This is used in lexer.c
-int	add_word(char *command, t_lex_result *lexer, int *i)
+int	add_word(const char *command, t_lex_result *lexer, int *i)
 {
 	int		quote;
 	char	*buffer;
@@ -110,5 +137,5 @@ int	add_word(char *command, t_lex_result *lexer, int *i)
 		return (word_fail(lexer, buffer, 1));
 	if (quote != 0)
 		return (word_fail(lexer, buffer, 2));
-	return (word_commit(lexer, buffer));
+	return (word_commit(lexer, buffer, quote));
 }

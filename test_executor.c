@@ -25,9 +25,8 @@ int main(int argc, char **argv, char **envp)
     t_shell         *shell;
     char *cases[] = {
         "ls >",
-        "cat << EOF > file.txt",
         "cat < input.txt | sort > out.txt",
-        "grep foo << EOF",
+        "echo \"foo\" | grep foo",
         "ls -la | grep minishell | wc -l",
         "echo \"a b\" '$HOME' \"$HOME\"",
         "| ls",
@@ -35,23 +34,21 @@ int main(int argc, char **argv, char **envp)
         "echo hello",
         "printf \"hello\nhi\nwassup\n\" | grep hi",
         "printf \"b\na\nc\n\" | sort | tr -d '\n'",
-        "cat < input.txt",
         "echo hello > out.txt",
         "echo first > out.txt",
         "echo second >> out.txt",
-        "cat << EOF",
-        "cat << EOF > out.txt",
-        "cat < input.txt | sort",
+        "echo \"Hello i am writing to out.txt using cat\" | cat > out.txt",
         "printf \"b\na\n\" | sort > out.txt",
-        "cat < missing.txt",
-        "cat < missing.txt | sort > out.txt",
         "echo hello > no_such_dir/out.txt",
-        "| ls",
         "ls |",
         "echo \"unterminated",
         "echo \"a b\" '$HOME' \"$HOME\"",
         "echo hello > file1 > file2",
-        "cat << EOF"
+        "|",
+        "ls || wc",
+        "cat >",
+        "cat < | grep",
+        "ls >>"
     };
 
     (void)argc;
@@ -70,7 +67,7 @@ int main(int argc, char **argv, char **envp)
     if (!lex)
         return (1);
     int i = 0;
-    while (i < 7)
+    while (i < 25)
     {
         printf("Case: %s\n", cases[i]);
         tokenize_lexer(cases[i], lex);

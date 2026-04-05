@@ -26,6 +26,25 @@ THINGS TO THINK ABOUT:
 	What should the order of execution be when dealing with a long command?
 */
 
+void	exit_error(char *command)
+{
+	if (errno == ENOENT)
+	{
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(command, 2);
+		ft_putstr_fd(": No such file or directory\n", 2);
+		exit(127);
+	}
+	else if (errno == EACCES)
+	{
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(command, 2);
+		ft_putstr_fd(": Permission denied\n", 2);
+		exit(126);
+	}
+	exit(1);
+}
+
 static void	exec_child(t_commands *command, t_shell *shell)
 {
 	char	*full_command;
@@ -36,21 +55,7 @@ static void	exec_child(t_commands *command, t_shell *shell)
 	free(command->argv[0]);
 	command->argv[0] = full_command;
 	execve(command->argv[0], command->argv, shell->env);
-	if (errno == ENOENT)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(command->argv[0], 2);
-		ft_putstr_fd(": No such file or directory\n", 2);
-		exit(127);
-	}
-	else if (errno == EACCES)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(command->argv[0], 2);
-		ft_putstr_fd(": Permission denied\n", 2);
-		exit(126);
-	}
-	exit(1);
+	exit_error(command->argv[0]);
 }
 
 static int	wait_all(int *pids, int n)
@@ -127,76 +132,27 @@ static void	handle_redirects(t_commands	*command)
 	i = 0;
 	while (i < command->redirections_count)
 	{
-		// open each file
 		if (command->redirections[i].type == TOK_HEREDOC && command->redirections[i].target)
 			handle_heredoc(command->redirections[i].target);
 		else if (command->redirections[i].type == TOK_REDIR_APPEND && command->redirections[i].target)
 		{
 			fd = open(command->redirections[i].target, O_RDWR | O_CREAT | O_APPEND);
 			if (fd < 0)
-			{
-				if (errno == ENOENT)
-				{
-					ft_putstr_fd("minishell: ", 2);
-					ft_putstr_fd(command->redirections[i].target, 2);
-					ft_putstr_fd(": No such file or directory\n", 2);
-					exit(127);
-				}
-				else if (errno == EACCES)
-				{
-					ft_putstr_fd("minishell: ", 2);
-					ft_putstr_fd(command->redirections[i].target, 2);
-					ft_putstr_fd(": Permission denied\n", 2);
-					exit(126);
-				}
-				exit(1);
-			}
+				exit_error(command->redirections[i].target);
 			dup_and_close(fd, STDOUT_FILENO);
 		}
 		else if (command->redirections[i].type == TOK_REDIR_IN && command->redirections[i].target)
 		{
 			fd = open(command->redirections[i].target, O_RDONLY);
 			if (fd < 0)
-			{
-				if (errno == ENOENT)
-				{
-					ft_putstr_fd("minishell: ", 2);
-					ft_putstr_fd(command->redirections[i].target, 2);
-					ft_putstr_fd(": No such file or directory\n", 2);
-					exit(127);
-				}
-				else if (errno == EACCES)
-				{
-					ft_putstr_fd("minishell: ", 2);
-					ft_putstr_fd(command->redirections[i].target, 2);
-					ft_putstr_fd(": Permission denied\n", 2);
-					exit(126);
-				}
-				exit(1);
-			}
+				exit_error(command->redirections[i].target);
 			dup_and_close(fd, STDIN_FILENO);
 		}
 		else if (command->redirections[i].type == TOK_REDIR_OUT && command->redirections[i].target)
 		{
 			fd = open(command->redirections[i].target, O_RDWR | O_CREAT | O_TRUNC);
 			if (fd < 0)
-			{
-				if (errno == ENOENT)
-				{
-					ft_putstr_fd("minishell: ", 2);
-					ft_putstr_fd(command->redirections[i].target, 2);
-					ft_putstr_fd(": No such file or directory\n", 2);
-					exit(127);
-				}
-				else if (errno == EACCES)
-				{
-					ft_putstr_fd("minishell: ", 2);
-					ft_putstr_fd(command->redirections[i].target, 2);
-					ft_putstr_fd(": Permission denied\n", 2);
-					exit(126);
-				}
-				exit(1);
-			}
+				exit_error(command->redirections[i].target);
 			dup_and_close(fd, STDOUT_FILENO);
 		}
 		else
@@ -205,9 +161,8 @@ static void	handle_redirects(t_commands	*command)
 	}
 }
 
-int	execute_single_command(t_commands *command, t_shell *shell, int pipe_fd[2], int *prev_pipe)
+void	execute_single_command(t_commands *command, t_shell *shell, int pipe_fd[2], int *prev_pipe)
 {
-
 	//  1. pipe
 	if (*prev_pipe != -1)
 		dup_and_close(*prev_pipe, STDIN_FILENO);
@@ -218,13 +173,6 @@ int	execute_single_command(t_commands *command, t_shell *shell, int pipe_fd[2], 
 	handle_redirects(command);
 	// 	3. execute
 	exec_child(command, shell);
-	return (1);
-}
-
-int	pipe_command(void)
-{
-
-	return (0);
 }
 
 // EXAMPLE: cat < input.txt | sort > out.txt
@@ -242,10 +190,11 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 	prev_pipe = -1;
 	if (!parsed_result)
 	{
-		ft_putendl_fd("Syntax error somewhere idk", 2);
 		return (0);
 	}
 	pids = malloc (sizeof(int) * parsed_result->command_count);
+	if (!pids)
+		return (1);
 	while (i < parsed_result->command_count)
 	{
 		pipe_fd[0] = -1;
