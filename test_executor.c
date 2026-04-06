@@ -24,9 +24,9 @@ int main(int argc, char **argv, char **envp)
     t_lex_result    *lex;
     t_shell         *shell;
     char *cases[] = {
+        "echo \"foo\" | grep foo",
         "ls >",
         "cat < input.txt | sort > out.txt",
-        "echo \"foo\" | grep foo",
         "ls -la | grep minishell | wc -l",
         "echo \"a b\" '$HOME' \"$HOME\"",
         "| ls",
@@ -69,12 +69,24 @@ int main(int argc, char **argv, char **envp)
     int i = 0;
     while (i < 25)
     {
+        printf("==================================================================================\n");
         printf("Case: %s\n", cases[i]);
         tokenize_lexer(cases[i], lex);
-        parsed = parser(lex, shell);
-        execute_commands(parsed, shell);
+        if (lex->error == 0)
+        {
+            parsed = parser(lex, shell);
+            if (parsed->command_error == 0)
+            {
+                execute_commands(parsed, shell);
+            }
+            free_parser(parsed);
+        }
         clear_lexer(lex);
         i++;
+        printf("==================================================================================\n");
     }
+    free(lex);
+    free_split(shell->env);
+    free(shell);
     return (0);
 }

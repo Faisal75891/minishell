@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 01:45:04 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/15 02:06:51 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/06 16:16:20 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ char	**copy_env(char **envp)
 	i = 0;
 	while (envp[i])
 		i++;
-	env = malloc (i + 1* sizeof(char *));
+	env = malloc ((i + 1) * sizeof(char *));
 	if (!env)
 		return (NULL);
 	i = 0;

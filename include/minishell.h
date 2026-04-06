@@ -97,6 +97,8 @@ void	dup_and_close(int fd1, int fd2);
 // cleanup.c
 void	free_split(char **arr);
 int		split_len(char **arr);
+void	free_parser(t_parsed_result *parser);
+
 
 // path_utils.c
 char	**get_paths(char **environ);
@@ -151,12 +153,6 @@ int		ms_export(t_shell *shell, char **args);
 int		ms_pwd(t_shell *shell, char **args);
 int		ms_unset(t_shell *shell, char **args);
 int		ms_exit(t_shell *shell, char **args);
-// echo.c - TODO
-// env.c - TODO
-// export.c - TODO
-// pwd.c - TODO
-// unset.c - TODO
-// exit.c - TODO
 
 // init.c
 char	**copy_env(char **envp);

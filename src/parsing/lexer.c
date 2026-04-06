@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/25 18:10:55 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/05 13:43:34 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/06 16:14:56 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,9 @@ void	clear_lexer(t_lex_result *lexer)
 		free(current);
 		current = next;
 	}
-	free(lexer->unexpected_token);
+	if (lexer->unexpected_token)
+		free(lexer->unexpected_token);
+	lexer->unexpected_token = NULL;
 	lexer->count = 0;
 	lexer->error = 0;
 	lexer->head = NULL;

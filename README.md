@@ -88,6 +88,14 @@ libft/              → custom C library (ft_* functions)
   - It executes commands. typeshit.
   - It still needs work like error detection and memory leaks.
 
+# What i Did:
+- I added -g flag in the makefile for better debugging,
+- I am only running from test_executor.c file to test stuff.
+- I added free_parser() function.
+- I fixed a minor bug in copy_env().
+- NOTE: memory leaks are mostly from the executor not checking stuff.
+- Now i am working on the parser.
+
 ## coming soon
 
 - [ ] pipes `|` (chain commands fr fr) **– core already there, needs polish & testing**
