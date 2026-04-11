@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/26 12:57:11 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/06 19:58:42 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/11 19:24:54 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ char	**get_args(char *command, t_shell *shell)
 	i = 0;
 	while (arg_list[i])
 	{
-		expanded = expand_variables(arg_list[i], shell);
+		expanded = expand_variables(arg_list[i], 0, shell);
 		if (expanded)
 		{
 			free(arg_list[i]);
@@ -117,7 +117,6 @@ t_parsed_result	*init_parser(t_lex_result *lexer)
 
 // Loop through the tokens until you find a | or NULL
 // Fill the argv and argc of each command.
-
 static t_redirections	*grow_redirections(t_commands *cmd,
 	t_token_type type, char *word)
 {
@@ -135,9 +134,7 @@ static t_redirections	*grow_redirections(t_commands *cmd,
 		new_arr[i] = cmd->redirections[i];
 		i++;
 	}
-	new_arr[i].target = ft_strdup(word);
-	if (!new_arr[i].target)
-		return (free(new_arr), NULL);
+	new_arr[i].target = word;
 	new_arr[i].type = type;
 	return (new_arr);
 }
@@ -169,14 +166,7 @@ int	append_arg(t_commands *command, char *cmd)
 		new_argv[i] = command->argv[i];
 		i++;
 	}
-	new_argv[i] = ft_strdup(cmd);
-	if (!new_argv[i])
-	{
-		while (i > 0)
-			free(new_argv[--i]);
-		free(new_argv);
-		return (0);
-	}
+	new_argv[i] = cmd;
 	new_argv[i + 1] = NULL;
 	free(command->argv);
 	command->argv = new_argv;
@@ -196,33 +186,42 @@ int	handle_redirect(t_token **current, t_commands *command, t_shell *shell)
 		shell->last_status = 2;
 		return (0);
 	}
-	// TODO: handle expansions;
-	// dont just use strdup...
-	expanded_word = ft_strdup((*current)->word);
+	if ((*current)->quote == Q_NONE)
+		expanded_word = ft_strdup((*current)->word);
+	else
+		expanded_word = expand_variables((*current)->word, (*current)->quote, shell);
 	if (!expanded_word)
-		return (0);
-	if (!append_redir(type, expanded_word, command))
 	{
-		free(expanded_word);
+		shell->last_status = 1;
 		return (0);
 	}
-	free(expanded_word);
+	if (!append_redir(type, expanded_word, command))
+	{
+		shell->last_status = 1;
+		if (expanded_word)
+			free(expanded_word);
+		return (0);
+	}
 	*current = (*current)->next;
 	return (1);
 }
 
 int	parse_command(t_token **current, t_commands *command, t_shell *shell)
 {
-	// char	*expanded_word;
+	char	*expanded_word;
+
 	while (*current && (*current)->type != TOK_PIPE)
 	{
 		if ((*current)->type == TOK_WORD)
 		{
-			// TODO: EXPAND COMMAND HERE. DON'T JUST STRDUP
-			// expanded_word = ft_strdup((*current)->word);
-			// append_word
-			if (!append_arg(command, (*current)->word))
-				return (0);
+			if ((*current)->quote == Q_SINGLE)
+				expanded_word = ft_strdup((*current)->word);
+			else
+				expanded_word = expand_variables((*current)->word, (*current)->quote, shell);
+			if (!expanded_word)
+				return (shell->last_status = 1, 0);
+			if (!append_arg(command, expanded_word))
+				return (shell->last_status = 1, 0);
 			*current = (*current)->next;
 		}
 		else if (is_redirect((*current)->type))
@@ -231,10 +230,16 @@ int	parse_command(t_token **current, t_commands *command, t_shell *shell)
 				return (0);
 		}
 		else
+		{
+			shell->last_status = 2;
 			return (0);
+		}
 	}
 	if (command->argc == 0 && command->redirections_count == 0)
+	{
+		shell->last_status = 2;
 		return (0);
+	}
 	return (1);
 }
 
@@ -250,8 +255,7 @@ int	parse_pipeline(t_token **current,
 		*current = (*current)->next;
 		if (!*current)
 		{
-			// command not found. Maybe do:
-			parsed->command_error = 1;
+			shell->last_status = 2;
 			return (0);
 		}
 		return (parse_pipeline(current, parsed, shell, i + 1));
@@ -264,14 +268,21 @@ t_parsed_result	*parser(t_lex_result *lexer, t_shell *shell)
 	t_parsed_result	*parsed;
 	t_token			*current;
 
+	if (!lexer || lexer->error > 0 || lexer->count <= 0 || lexer->head == NULL)
+	{
+		shell->last_status = 1;
+		return (NULL);
+	}
 	parsed = init_parser(lexer);
 	if (!parsed)
+	{
+		shell->last_status = 1;
 		return (NULL);
+	}
 	current = lexer->head;
 	if (!parse_pipeline(&current, parsed, shell, 0))
 	{
-		//free_parser(parsed);
-		parsed->command_error = 1;
+		free_parser(parsed);
 		return (NULL);
 	}
 	return (parsed);

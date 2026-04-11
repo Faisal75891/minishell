@@ -54,6 +54,11 @@ int	main(void)
         {"empty single quotes", "echo ''", 2, 0},
         {"mixed quotes", "echo '\"'$?'\"'", 2, 0},
         {"unterminated quote", "echo \"unterminated", 1, 2},
+        {"Both expand", "echo \"'$HOME' $HOME\" ", 2, 0},
+        {"Only HOME expands Q_DOUBLE | Q_SINGLE", "echo \"$HOME\" '/$USER'", 3 ,0},
+        {"should expand Q_NONE", "echo pre\"$HOME\"post", 2, 0},
+        {"Shouldn't expand. Q_NONE", "echo '\"$HOME\"'", 2, 0},
+        {"Only HOME expands Q_NONE", "echo a\"$HOME\"b'$USER'", 2, 0},
     };
     int				pass;
     int				total;

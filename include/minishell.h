@@ -133,7 +133,7 @@ void	add_redirect_in(t_lex_result *lexer);
 // quotes.c
 int				add_word(const char *command, t_lex_result *lexer, int *i);
 // expansion.c
-char	*expand_variables(const char *s, t_shell *shell);
+char	*expand_variables(const char *s, t_quote_type quote, t_shell *shell);
 
 // executor.c
 int		handle_command(char *command, t_shell *shell);
