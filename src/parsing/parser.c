@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/26 12:57:11 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/11 19:24:54 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/13 19:24:00 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ t_commands	*init_commands(t_parsed_result *parser)
 		commands[i].argc = 0;
 		commands[i].redirections = NULL;
 		commands[i].redirections_count = 0;
-		commands[i].heredoc = -1;
 		i++;
 	}
 	return (commands);
@@ -118,7 +117,7 @@ t_parsed_result	*init_parser(t_lex_result *lexer)
 // Loop through the tokens until you find a | or NULL
 // Fill the argv and argc of each command.
 static t_redirections	*grow_redirections(t_commands *cmd,
-	t_token_type type, char *word)
+	t_quote_type quote, t_token_type type, char *word)
 {
 	t_redirections	*new_arr;
 	int				i;
@@ -136,14 +135,16 @@ static t_redirections	*grow_redirections(t_commands *cmd,
 	}
 	new_arr[i].target = word;
 	new_arr[i].type = type;
+	new_arr[i].quote = quote;
 	return (new_arr);
 }
 
-int	append_redir(t_token_type type, char *word, t_commands *command)
+static int	append_redir(t_commands *command, t_quote_type quote,
+	t_token_type type, char *word)
 {
 	t_redirections	*copy;
 
-	copy = grow_redirections(command, type, word);
+	copy = grow_redirections(command, quote, type, word);
 	if (!copy)
 		return (0);
 	free(command->redirections);
@@ -178,6 +179,7 @@ int	handle_redirect(t_token **current, t_commands *command, t_shell *shell)
 {
 	t_token_type	type;
 	char			*expanded_word;
+	t_quote_type	quote;
 
 	type = (*current)->type;
 	*current = (*current)->next;
@@ -186,16 +188,19 @@ int	handle_redirect(t_token **current, t_commands *command, t_shell *shell)
 		shell->last_status = 2;
 		return (0);
 	}
-	if ((*current)->quote == Q_NONE)
+	quote = (*current)->quote;
+	if (type == TOK_HEREDOC)
+		expanded_word = ft_strdup((*current)->word);
+	else if (quote == Q_NONE)
 		expanded_word = ft_strdup((*current)->word);
 	else
-		expanded_word = expand_variables((*current)->word, (*current)->quote, shell);
+		expanded_word = expand_variables((*current)->word, quote, shell);
 	if (!expanded_word)
 	{
 		shell->last_status = 1;
 		return (0);
 	}
-	if (!append_redir(type, expanded_word, command))
+	if (!append_redir(command, quote, type, expanded_word))
 	{
 		shell->last_status = 1;
 		if (expanded_word)

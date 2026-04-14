@@ -62,6 +62,7 @@ typedef struct s_redirections
 {
 	char			*target;
 	t_token_type	type;
+	t_quote_type	quote;
 }	t_redirections;
 
 typedef struct s_commands
@@ -70,7 +71,6 @@ typedef struct s_commands
 	int					argc;
 	t_redirections		*redirections;
 	int					redirections_count;
-	int					heredoc;
 }	t_commands;
 
 typedef struct s_parsed_result

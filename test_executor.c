@@ -84,9 +84,9 @@ int main(int argc, char **argv, char **envp)
 	};
 
 	char	*here_doc_cases[] = {
-		"echo << EOF", // should epand vars
-		"echo << 'EOF'", // shouldnt expand vars
-		"echo << \"EOF\"",
+		"cat << EOF", // should epand vars
+		"cat << 'EOF'", // shouldnt expand vars
+		"cat << \"EOF\"",
 		//---- unquoted ----
 		// /home/faisal
 		// ---- single quoted ----

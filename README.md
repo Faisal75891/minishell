@@ -83,18 +83,23 @@ libft/              → custom C library (ft_* functions)
   -     argv 1: ["cat", NULL], redirections: [">", "out.txt"]
   -     argv 2: ["grep", "a", NULL], redirections: ["<<", "EOF"]
   -     argv 3: ["ls", NULL], redirections: NULL
-- New_executor *(NEW)*:
+- New_executor :
   - This new executor uses the new parsed structure
   - It executes commands. typeshit.
   - It still needs work like error detection and memory leaks.
+
+# What i Did:
+  - I tracked the type of quote for redirects
+  - e.g: " > 'outfile.txt'" I tracked the type of quote which is single_quote
+  This is mainly for here_doc expansions.
+  - I added expansion by checking if the delimeter is quoted or not, if not, I expand every line entered.
+  - Idk where to add signals
 
 # What i Did:
 - I added -g flag in the makefile for better debugging,
 - I am only running from test_executor.c file to test stuff.
 - I added free_parser() function.
 - I fixed a minor bug in copy_env().
-- NOTE: memory leaks are mostly from the executor not checking stuff.
-- Now i am working on the parser.
 
 ## coming soon
 

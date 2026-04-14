@@ -82,18 +82,21 @@ static int	wait_all(int *pids, int n)
 	return (last_status);
 }
 
-// reads from the stdin
-// and writes to the here_doc pipe.
-// I probably need to expand the delimiter
-void	handle_heredoc(char *delimiter)
+// reads from stdin and writes heredoc contents into a pipe.
+// when delimiter is unquoted, expand variables in each line.
+// TODO: handle signals (chatgpt told me).
+static void	handle_heredoc(char *delimiter, t_quote_type quote, t_shell *shell)
 {
 	char	*line;
+	char	*content;
 	int		here_doc[2];
+	int		len;
 
 	if (pipe(here_doc) == -1)
 		exit(1);
 	while (1)
 	{
+		write(STDOUT_FILENO, "> ", 2);
 		line = get_next_line(0);
 		if (!line)
 		{
@@ -101,15 +104,28 @@ void	handle_heredoc(char *delimiter)
 			close(here_doc[1]);
 			return ;
 		}
-		line[ft_strlen(line) - 1] = '\0';
-		if (!ft_strncmp(delimiter, line, ft_strlen(line) - 1))
+		len = (int)ft_strlen(line);
+		if (len > 0 && line[len - 1] == '\n')
+			line[len - 1] = '\0';
+		if (ft_strncmp(delimiter, line, ft_strlen(delimiter) + 1) == 0)
 		{
 			free(line);
 			break ;
 		}
-		line[ft_strlen(line)] = '\n';
-		write(here_doc[1], line, ft_strlen(line));
+		if (quote == Q_NONE)
+			content = expand_variables(line, Q_NONE, shell);
+		else
+			content = ft_strdup(line);
 		free(line);
+		if (!content)
+		{
+			close(here_doc[0]);
+			close(here_doc[1]);
+			exit(1);
+		}
+		write(here_doc[1], content, ft_strlen(content));
+		write(here_doc[1], "\n", 1);
+		free(content);
 	}
 	close(here_doc[1]);
 	dup_and_close(here_doc[0], STDIN_FILENO);
@@ -122,7 +138,7 @@ What if the file doesn't exist?
 What if the file doesn't 
 What if the file doesn't
 */
-static void	handle_redirects(t_commands	*command)
+static void	handle_redirects(t_commands	*command, t_shell *shell)
 {
 	int	fd;
 	int	i;
@@ -133,7 +149,8 @@ static void	handle_redirects(t_commands	*command)
 	while (i < command->redirections_count)
 	{
 		if (command->redirections[i].type == TOK_HEREDOC && command->redirections[i].target)
-			handle_heredoc(command->redirections[i].target);
+			handle_heredoc(command->redirections[i].target,
+				command->redirections[i].quote, shell);
 		else if (command->redirections[i].type == TOK_REDIR_APPEND && command->redirections[i].target)
 		{
 			fd = open(command->redirections[i].target, O_RDWR | O_CREAT | O_APPEND);
@@ -170,7 +187,7 @@ void	execute_single_command(t_commands *command, t_shell *shell, int pipe_fd[2],
 		dup_and_close(pipe_fd[1], STDOUT_FILENO);
 	close_if_open(&pipe_fd[0]);
 	//  2. redirect
-	handle_redirects(command);
+	handle_redirects(command, shell);
 	// 	3. execute
 	exec_child(command, shell);
 }
