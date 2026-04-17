@@ -1,10 +1,10 @@
-NAME		= m
+NAME		= minishell
 INCLUDES	= -I./include -I./libft
 
 SRC_DIR		= src
 LIBFT_DIR	= libft
 
-SRCS		= test_executor.c \
+SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/main/init.c \
               $(SRC_DIR)/parsing/parser.c \
               $(SRC_DIR)/parsing/lexer.c \

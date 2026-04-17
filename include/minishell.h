@@ -139,6 +139,9 @@ char	*expand_variables(const char *s, t_quote_type quote, t_shell *shell);
 int		handle_command(char *command, t_shell *shell);
 int		execute_command(char **arg_list, t_shell *shell);
 
+// NEW_EXECUTOR
+int	execute_commands(t_parsed_result *parsed_result, t_shell *shell);
+
 // pipes.c - TODO
 int		has_pipe(char *command);
 int		run_pipeline(char	*command, t_shell *shell);

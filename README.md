@@ -1,17 +1,21 @@
+*This project has been created as part of the 42 curriculum by fbaras, samamaev*
+
 # minishell 🐚
 
 ## what is this
 
-basic shell clone, bash but make it baby mode. only runs commands rn. typeshit
+basic shell clone, bash but make it baby mode.
 
-## how to use
+## Instructions
 
 ```bash
 make
-./m
-exit        
+./minishell
 ```
-
+### To exit
+```bash
+exit or CTRL-D
+```
 ## what's happening
 
 ### the vibe
@@ -87,6 +91,10 @@ libft/              → custom C library (ft_* functions)
   - This new executor uses the new parsed structure
   - It executes commands. typeshit.
   - It still needs work like error detection and memory leaks.
+
+- New_main :
+  - Inside it is a todo list of all the shortcomings of the program.
+  - It uses new_executor and new parser.
 
 # What i Did:
   - I tracked the type of quote for redirects

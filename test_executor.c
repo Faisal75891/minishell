@@ -46,30 +46,30 @@ int main(int argc, char **argv, char **envp)
 		"echo \"$HOME\" | cat << \"EOF\"",
 		"echo \"foo\" | grep foo",
 		"ls >",
-		"cat < input.txt | sort > out.txt",
+		"echo hello > file1 > file2",
+		"cat < file1.txt | sort > file3.txt",
 		"ls -la | grep minishell | wc -l",
 		"| ls",
 		"echo \"unterminated",
 		"echo hello",
 		"printf \"hello\nhi\nwassup\n\" | grep hi",
 		"printf \"b\na\nc\n\" | sort | tr -d '\n'",
-		"echo hello > out.txt",
-		"echo first > out.txt",
-		"echo second >> out.txt",
-		"echo \"Hello i am writing to out.txt using cat\" | cat > out.txt",
-		"printf \"b\na\n\" | sort > out.txt",
-		"echo hello > no_such_dir/out.txt",
+		"echo hello > file5.txt",
+		"echo first > file5.txt",
+		"echo second >> file5.txt",
+		"echo \"Hello i am writing to file5.txt using cat\" | cat > file5.txt",
+		"printf \"b\na\n\" | sort > file5.txt",
+		"echo hello > no_such_dir/file5.txt",
 		"ls |",
 		"echo \"unterminated",
 		"echo \"a b\" '$HOME' \"$HOME\"",
-		"echo hello > file1 > file2",
 		"|",
 		"ls || wc",
 		"cat >",
 		"cat < | grep",
-		"ls >>"
-	};
-	char *expansion_cases[] = {
+		"ls >>",
+	//};
+	//char *expansion_cases[] = {
 		"echo '$HOME'", // Doesn't expand
 		"echo \"$HOME\"", // expands
 		"echo pre\"$HOME\"post", // expands
@@ -81,9 +81,9 @@ int main(int argc, char **argv, char **envp)
 		"echo \"$UNSET_VAR\"", // idk lol
 		"echo $?",
 		"echo $$",
-	};
+	//};
 
-	char	*here_doc_cases[] = {
+	//char	*here_doc_cases[] = {
 		"cat << EOF", // should epand vars
 		"cat << 'EOF'", // shouldnt expand vars
 		"cat << \"EOF\"",
@@ -94,8 +94,6 @@ int main(int argc, char **argv, char **envp)
 		// ---- double quoted ----
 		// $HOME
 	};
-	printf("%p\n", cases);
-	printf("%p\n", expansion_cases);
 	(void)argc;
 	(void)argv;
 	shell = malloc(sizeof(t_shell));
@@ -112,11 +110,11 @@ int main(int argc, char **argv, char **envp)
 	if (!lex)
 		return (1);
 	int i = 0;
-	while (i < 3)
+	while (i < 44)
 	{
 		printf("==================================================================================\n");
-		printf("Case: %s\n", here_doc_cases[i]);
-		tokenize_lexer(here_doc_cases[i], lex);
+		printf("Case: %s\n", cases[i]);
+		tokenize_lexer(cases[i], lex);
 		if (lex->error == 0)
 		{
 			parsed = parser(lex, shell);
@@ -126,8 +124,9 @@ int main(int argc, char **argv, char **envp)
 				i++;
 				continue ;
 			}
-			print_tokens(lex);
+			//print_tokens(lex);
 			execute_commands(parsed, shell);
+			printf("exit_status: %d\n", shell->last_status);
 			free_parser(parsed);
 		}
 		clear_lexer(lex);
