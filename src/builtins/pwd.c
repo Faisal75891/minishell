@@ -14,3 +14,21 @@
 
 // TODO: pwd builtin
 // - print current working directory
+
+int ms_pwd(t_shell *shell, char **args)
+{
+	char	cwd[1024];
+
+	(void)shell;
+	(void)args;
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+	{
+		ft_putendl_fd(cwd, 1);
+		return (0);
+	}
+	else
+	{
+		ft_putendl_fd("minishell: pwd: error retrieving current directory", 2);
+		return (1);
+	}
+}

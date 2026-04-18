@@ -3,44 +3,132 @@
 /*                                                        :::      ::::::::   */
 /*   executor.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/02/25 00:00:00 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/03/25 13:57:20 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-extern char	**environ;
-
-void	execute_command(char **arg_list, char **environ)
+static int	execute_builtin(char **args, t_shell *shell)
 {
-	pid_t	pid;
-
-	pid = fork();
-	if (pid == 0)
-	{
-		execve(arg_list[0], arg_list, environ);
-		printf("no such file or directory\n");
-		exit(1);
-	}
-	else if (pid > 0)
-		wait(NULL);
-	else
-		printf("fork failed\n");
+	if (!ft_strncmp(args[0], "cd", 3))
+		return (ms_cd(shell, args));
+	if (!ft_strncmp(args[0], "pwd", 4))
+		return (ms_pwd(shell, args));
+	if (!ft_strncmp(args[0], "echo", 5))
+		return (ms_echo(shell, args));
+	if (!ft_strncmp(args[0], "export", 7))
+		return (ms_export(shell, args));
+	if (!ft_strncmp(args[0], "unset", 6))
+		return (ms_unset(shell, args));
+	if (!ft_strncmp(args[0], "env", 4))
+		return (ms_env(shell, args));
+	if (!ft_strncmp(args[0], "exit", 5))
+		return (ms_exit(shell, args));
+	return (-1);
 }
 
-int	handle_command(char *command, char **environ)
+static void	handle_child_process(char **arg_list, t_shell *shell)
 {
-	char	**arg_list;
+	char*cmd_path;
+	char**paths;
 
-	if (ft_strncmp(command, "exit", 5) == 0)
-		return (1);
-	arg_list = get_args(command, environ);
-	if (!arg_list)
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	cmd_path = NULL;
+	if (arg_list[0][0] == '/' || arg_list[0][0] == '.')
+		cmd_path = ft_strdup(arg_list[0]);
+	else if (shell->env)
+	{
+		paths = get_paths(shell->env);
+		if (paths)
+		{
+			cmd_path = get_full_path(arg_list[0], paths);
+			free_split(paths);
+		}
+	}
+	if (!cmd_path)
+		cmd_path = arg_list[0];
+	execve(cmd_path, arg_list, shell->env);
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(arg_list[0], 2);
+	ft_putendl_fd(": command not found", 2);
+	_exit(127);
+}
+
+static int	wait_for_child(pid_t pid)
+{
+	int status;
+	int exit_status;
+
+	exit_status = 1;
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status))
+		exit_status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
+		exit_status = 128 + WTERMSIG(status);
+	return (exit_status);
+}
+
+int execute_command(char **arg_list, t_shell *shell)
+{
+	pid_t	pid;
+	int exit_status;
+
+	exit_status = execute_builtin(arg_list, shell);
+	if (exit_status != -1)
+		return (exit_status);
+	pid = fork();
+	if (pid == 0)
+		handle_child_process(arg_list, shell);
+	else if (pid > 0)
+		exit_status = wait_for_child(pid);
+	else
+	{
+		ft_putendl_fd("fork failed", 2);
+		exit_status = 1;
+	}
+	return (exit_status);
+}
+
+int handle_command(char *command, t_shell *shell)
+{
+	t_lex_result*lex;
+	t_parsed_result*parsed;
+
+	lex = init_lexer();
+	if (!lex)
 		return (0);
-	execute_command(arg_list, environ);
-	free_split(arg_list);
+	tokenize_lexer(command, lex);
+	if (lex->error != 0)
+	{
+		clear_lexer(lex);
+		free(lex);
+		return (0);
+	}
+	parsed = parser(lex, shell);
+	if (!parsed)
+	{
+		clear_lexer(lex);
+		free(lex);
+		return (0);
+	}
+	if (parsed->command_error == 0 && parsed->commands)
+		shell->last_status = execute_commands(parsed, shell);
+	
+	if (parsed->commands && parsed->commands[0].argv && parsed->commands[0].argv[0] && 
+		!ft_strncmp(parsed->commands[0].argv[0], "exit", 5) && shell->last_status != -1)
+	{
+		free_parser(parsed);
+		clear_lexer(lex);
+		free(lex);
+		return (1);
+	}
+	free_parser(parsed);
+	clear_lexer(lex);
+	free(lex);
 	return (0);
 }

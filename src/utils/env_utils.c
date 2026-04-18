@@ -6,13 +6,30 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/02/25 00:00:00 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/03/23 00:20:00 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// TODO: environment utilities
-// - get environment variable by name
-// - set environment variable
-// - copy environment
+// get environment variable value by name (NAME without '=')
+char	*get_env_value(const char *name, char **env)
+{
+	int	len;
+	int	i;
+
+	if (!name || !*name)
+		return (NULL);
+	len = ft_strlen(name);
+	i = 0;
+	while (env && env[i])
+	{
+		if (!ft_strncmp(env[i], name, len) && env[i][len] == '=')
+			return (env[i] + len + 1);
+		i++;
+	}
+	return (NULL);
+}
+
+// TODO: set environment variable
+// TODO: copy environment
