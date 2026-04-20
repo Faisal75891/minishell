@@ -221,6 +221,14 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 		pid = fork();
 		if (pid == 0)
 			execute_single_command(&parsed_result->commands[i], shell, pipe_fd, &prev_pipe);
+		if (pid < 0)
+		{
+			free(pids);
+			close_if_open(&pipe_fd[0]);
+			close_if_open(&pipe_fd[1]);
+			perror("fork");
+			return (-1);
+		}
 		else
 		{
 			pids[i] = pid;
