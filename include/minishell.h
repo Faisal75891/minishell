@@ -112,7 +112,6 @@ t_parsed_result	*parser(t_lex_result *lexer, t_shell *shell);
 
 // old parser.
 char			*get_full_command(char *command, char **environ);
-char			*read_command(void);
 char			**get_args(char *command, t_shell *shell);
 
 // lexer.c
