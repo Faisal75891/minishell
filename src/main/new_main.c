@@ -15,34 +15,52 @@
 /*
 todo-list:
 
-TODO: exit needs return exit number, it shouldn't take non numeric args
-	e.g from bash: 
-	$ exit 1 a;lkfads
-		logout
-		-bash: exit: too many arguments.
+TODO: exit needs return exit number, it shouldn't take non numeric args. DONE
 
-* TODO: Use the builtin functions instead of bash's              (priority)
-	Make sure echo works correctly.
-	export
-	unset
-	env
+TODO: Use the builtin functions instead of bash's. DONE
 
-TODO: command not found doesn't show anymore for some reason.
+TODO: cd doesn't work. DONE
 
-TODO: $HOME, $USER or $PATH works but $? doesn't.
+TODO: redirects should create files with 0644 permissions. (need to double check). DONE
+
+TODO: command not found doesn't show anymore for some reason. DONE
+
+TODO: prompting: ' "" ' gives exit 126 should give 127. DONE 
 
 TODO: doing ctrl-c after using cat displays and extra "$".
 
-TODO: ctrl-/ clears the prompt line after typing stuff Should do nothing instead.
+TODO: segfault when one quote is entered (single or double) !!!!
 
-TODO: prompting: ' "" ' should do nothing (i think).
+TODO: ctrl-c should set last status to 130
 
-TODO: cd doesn't work.
-
-TODO: redirects should create files with 0644 permissions. (need to double check)
-
+TODO: ctrl + \ should be handled
 
 */
+
+static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
+{
+	char	**args;
+	
+	if (parser && parser->commands->argv && parser->commands->argv[0][0] != '\0')
+		args = parser->commands->argv;
+	else
+		return (-1);
+	if (!ft_strncmp(args[0], "cd", 3))
+		return (ms_cd(shell, args));
+	if (!ft_strncmp(args[0], "pwd", 4))
+		return (ms_pwd(shell, args));
+	if (!ft_strncmp(args[0], "echo", 5))
+		return (ms_echo(shell, args));
+	if (!ft_strncmp(args[0], "export", 7))
+		return (ms_export(shell, args));
+	if (!ft_strncmp(args[0], "unset", 6))
+		return (ms_unset(shell, args));
+	if (!ft_strncmp(args[0], "env", 4))
+		return (ms_env(shell, args));
+	if (!ft_strncmp(args[0], "exit", 5))
+		return (ms_exit(shell, args));
+	return (-1);
+}
 
 t_shell	*init_shell(char **envp)
 {
@@ -85,14 +103,22 @@ int	main(int argc, char **argv, char **envp)
 			free(input);
 			continue ;
 		}
-		if (ft_strncmp(input, "exit", 4) == 0)
-		{
-			free(input);
-			break ;
-		}
 		tokenize_lexer(input, lexer);
+		printf("lexing susccessful\n");
 		p = parser(lexer, shell);
-		execute_commands(p, shell);
+		printf("parsing susccessful\n");
+		if (execute_builtin(p, shell) != -1)
+		{
+			printf("hehe\n");
+			add_history(input);
+			free_parser(p);
+			clear_lexer(lexer);
+			clear_history();
+			free(input);
+			continue ;
+		}
+		shell->last_status = execute_commands(p, shell);
+		printf("execution successful %d\n", shell->last_status);
 		add_history(input);
 		clear_lexer(lexer);
 		free_parser(p);

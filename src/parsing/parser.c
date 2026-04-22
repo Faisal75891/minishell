@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/26 12:57:11 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/13 19:24:00 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/21 18:15:17 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ char	*get_full_command(char *command, char **environ)
 		return (NULL);
 	full_path = get_full_path(command, paths);
 	free_split(paths);
+	if (!full_path)
+		return (strdup(command));	
 	return (full_path);
 }
 

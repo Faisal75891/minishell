@@ -65,5 +65,6 @@ int ms_exit(t_shell *shell, char **args)
 		return (1);
 	}
 	status = ft_atoi(args[1]);
+	clear_history();
 	exit(status % 256);
 }

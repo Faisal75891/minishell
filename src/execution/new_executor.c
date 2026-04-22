@@ -12,20 +12,6 @@
 
 #include "../../include/minishell.h"
 
-/*
-THINGS TO THINK ABOUT:
-
-	How does the shell execute commands?
-	How does it execute programs and .c files?
-		-> Maybe it adds the programs to the path temporarily...
-
-	How are multiple redirects for one command handled?
-		-> {cat > file1.txt > file2.txt} Only file2.txt has text...
-		*I'll assume only the last redirect will be active. Others will only be opened/created
-
-	What should the order of execution be when dealing with a long command?
-*/
-
 void	exit_error(char *command)
 {
 	if (errno == ENOENT)
@@ -49,12 +35,16 @@ static void	exec_child(t_commands *command, t_shell *shell)
 {
 	char	*full_command;
 
-	full_command = get_full_command(command->argv[0], shell->env);
-	if (!full_command)
-		exit(2);
-	free(command->argv[0]);
-	command->argv[0] = full_command;
-	execve(command->argv[0], command->argv, shell->env);
+	if (command->argv[0][0] == '\0')
+		full_command = strdup(command->argv[0]);
+	else
+	{
+		full_command = get_full_command(command->argv[0], shell->env);
+		if (!full_command)
+			exit(1);
+	}
+	execve(full_command, command->argv, shell->env);
+	free(full_command);
 	exit_error(command->argv[0]);
 }
 
@@ -131,13 +121,6 @@ static void	handle_heredoc(char *delimiter, t_quote_type quote, t_shell *shell)
 	dup_and_close(here_doc[0], STDIN_FILENO);
 }
 
-// exits if there is error
-/*
-What if the file doesn't have read or write permissions?
-What if the file doesn't exist?
-What if the file doesn't 
-What if the file doesn't
-*/
 static void	handle_redirects(t_commands	*command, t_shell *shell)
 {
 	int	fd;
@@ -192,7 +175,6 @@ void	execute_single_command(t_commands *command, t_shell *shell, int pipe_fd[2],
 	exec_child(command, shell);
 }
 
-// EXAMPLE: cat < input.txt | sort > out.txt
 int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 {
 	pid_t	pid;
@@ -209,6 +191,7 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 	{
 		return (0);
 	}
+	printf("reached here\n");
 	pids = malloc (sizeof(int) * parsed_result->command_count);
 	if (!pids)
 		return (1);
@@ -221,6 +204,14 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 		pid = fork();
 		if (pid == 0)
 			execute_single_command(&parsed_result->commands[i], shell, pipe_fd, &prev_pipe);
+		if (pid < 0)
+		{
+			close_if_open(&pipe_fd[0]);
+			close_if_open(&pipe_fd[1]);
+			free(pids);
+			perror("fork");
+			return (1);
+		}
 		else
 		{
 			pids[i] = pid;
