@@ -191,7 +191,6 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 	{
 		return (0);
 	}
-	printf("reached here\n");
 	pids = malloc (sizeof(int) * parsed_result->command_count);
 	if (!pids)
 		return (1);

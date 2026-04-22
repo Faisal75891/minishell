@@ -27,13 +27,13 @@ TODO: command not found doesn't show anymore for some reason. DONE
 
 TODO: prompting: ' "" ' gives exit 126 should give 127. DONE 
 
-TODO: doing ctrl-c after using cat displays and extra "$".
+TODO: segfault when one quote is entered (single or double) !!!!. DONE
 
-TODO: segfault when one quote is entered (single or double) !!!!
+TODO: doing ctrl-c after using cat displays and extra "$".
 
 TODO: ctrl-c should set last status to 130
 
-TODO: ctrl + \ should be handled
+TODO: ctrl + \ should be handled. And needs to set last_status to 131
 
 */
 
@@ -41,7 +41,10 @@ static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
 {
 	char	**args;
 	
-	if (parser && parser->commands->argv && parser->commands->argv[0][0] != '\0')
+	if (parser && parser->commands
+		&& parser->commands->argv[0]
+		&& parser->commands->argv
+		&& parser->commands->argv[0][0] != '\0')
 		args = parser->commands->argv;
 	else
 		return (-1);
@@ -99,7 +102,7 @@ int	main(int argc, char **argv, char **envp)
 	(void) argc;
 	(void) argv;
 	signal(SIGINT, handle_ctrl_c);
-	//signal(SIGUSR1, handle_ctrl_slash);
+	signal(SIGQUIT, handle_ctrl_slash);
 	while (1)
 	{
 		input = readline("$ ");
@@ -111,21 +114,16 @@ int	main(int argc, char **argv, char **envp)
 			continue ;
 		}
 		tokenize_lexer(input, lexer);
-		printf("lexing susccessful\n");
 		p = parser(lexer, shell);
-		printf("parsing susccessful\n");
 		if (execute_builtin(p, shell) != -1)
 		{
-			printf("hehe\n");
 			add_history(input);
 			free_parser(p);
 			clear_lexer(lexer);
-			clear_history();
 			free(input);
 			continue ;
 		}
 		shell->last_status = execute_commands(p, shell);
-		printf("execution successful %d\n", shell->last_status);
 		add_history(input);
 		clear_lexer(lexer);
 		free_parser(p);
@@ -134,6 +132,6 @@ int	main(int argc, char **argv, char **envp)
 	free_split(shell->env);
 	free(shell);
 	free(lexer);
-	clear_history();
+	rl_clear_history();
 	return (0);
 }
