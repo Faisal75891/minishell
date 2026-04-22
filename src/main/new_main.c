@@ -71,7 +71,10 @@ t_shell	*init_shell(char **envp)
 		return (NULL);
 	shell->env = copy_env(envp);
 	if (!shell->env)
+	{
+		free(shell);
 		return (NULL);
+	}
 	shell->last_status = 0;
 	return (shell);
 }
@@ -88,7 +91,11 @@ int	main(int argc, char **argv, char **envp)
 		return (1);
 	lexer = init_lexer();
 	if (!lexer)
+	{
+		free_split(shell->env);
+		free(shell);
 		return (1);
+	}
 	(void) argc;
 	(void) argv;
 	signal(SIGINT, handle_ctrl_c);

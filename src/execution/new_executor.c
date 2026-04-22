@@ -136,7 +136,7 @@ static void	handle_redirects(t_commands	*command, t_shell *shell)
 				command->redirections[i].quote, shell);
 		else if (command->redirections[i].type == TOK_REDIR_APPEND && command->redirections[i].target)
 		{
-			fd = open(command->redirections[i].target, O_RDWR | O_CREAT | O_APPEND);
+			fd = open(command->redirections[i].target, O_WRONLY | O_CREAT | O_APPEND, 0644);
 			if (fd < 0)
 				exit_error(command->redirections[i].target);
 			dup_and_close(fd, STDOUT_FILENO);
@@ -150,7 +150,7 @@ static void	handle_redirects(t_commands	*command, t_shell *shell)
 		}
 		else if (command->redirections[i].type == TOK_REDIR_OUT && command->redirections[i].target)
 		{
-			fd = open(command->redirections[i].target, O_RDWR | O_CREAT | O_TRUNC);
+			fd = open(command->redirections[i].target, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 			if (fd < 0)
 				exit_error(command->redirections[i].target);
 			dup_and_close(fd, STDOUT_FILENO);

@@ -228,7 +228,10 @@ int	parse_command(t_token **current, t_commands *command, t_shell *shell)
 			if (!expanded_word)
 				return (shell->last_status = 1, 0);
 			if (!append_arg(command, expanded_word))
+			{
+				free(expanded_word);
 				return (shell->last_status = 1, 0);
+			}
 			*current = (*current)->next;
 		}
 		else if (is_redirect((*current)->type))
