@@ -24,6 +24,8 @@
 # include "../libft/libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <termios.h>
+
 
 // stores the shell
 // and the status of the last command.
@@ -147,7 +149,7 @@ int		run_pipeline(char	*command, t_shell *shell);
 
 // redirects.c - TODO
 
-// builtins
+// builtisignal(SIGINT, SIG_DFL);
 int		ms_cd(t_shell *shell, char **args);
 int		ms_echo(t_shell *shell, char **args);
 int		ms_env(t_shell *shell, char **args);
@@ -160,8 +162,10 @@ int		ms_exit(t_shell *shell, char **args);
 char	**copy_env(char **envp);
 
 // signals.c - TODO
-void	handle_ctrl_c(int sig);
-void	handle_ctrl_slash(int sig);
+int		get_last_signal(void);
+void	signal_handler(int sig);
+void	set_last_signal(int sig);
+
 
 // error_utils.c
 char	*ms_strappend_free(char *s1, char *s2);
@@ -173,7 +177,6 @@ int		word_commit(t_lex_result *lexer, char *buffer, int);
 
 int		ms_is_var_char(int c, int first);
 
-// str_utils.c
 int		ft_isspace(char c);
 int		is_operator_char(char c);
 int		is_redirect(t_token_type token);

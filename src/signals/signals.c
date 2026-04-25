@@ -3,41 +3,60 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 08:29:13 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/17 16:30:53 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/25 15:39:04 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// I think signals needs a global variable.
+static volatile	sig_atomic_t	g;
 
-// TODO: signal handling
-// - Ctrl+C (SIGINT) -> new prompt
-void	handle_ctrl_c(int sig)
+//  In interactive mode:
+// ◦ ctrl-C displays a new prompt on a new line.
+// ◦ ctrl-D exits the shell.
+// ◦ ctrl-\ does nothing.
+
+// Additional:
+	// Don´t display ctrl-\ or ctrl-c
+
+static void	handle_sigint(void)
 {
-	(void)sig;
 	write(1, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
 }
 
-// - Ctrl+D (EOF) -> exit 
-void	handle_ctrl_d(int pid)
+void	signal_handler(int sig)
 {
-	(void)pid;
-	printf("hellooo\n");
-	//kill(SIGINT, pid);
-	// call cleanup
+	// if interactive
+	if (isatty(STDIN_FILENO) && isatty(STDERR_FILENO))
+	{
+		if (sig == SIGINT)
+		{
+			g = SIGINT;
+			handle_sigint();
+		}
+		else if (sig == SIGQUIT)
+		{
+			// Don't save this signal
+			rl_on_new_line();
+			rl_redisplay();
+		}
+		else
+			g = 0;
+	}
 }
 
-// - Ctrl+\ (SIGQUIT) -> do nothing in interactive mode
-void	handle_ctrl_slash(int sig)
+int	get_last_signal(void)
 {
-	(void)sig;
-	return ;
+	return ((int)g);
 }
-// - different behavior in child processes
+
+void	set_last_signal(int sig)
+{
+	g = sig;
+}

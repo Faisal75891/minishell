@@ -29,7 +29,7 @@ TODO: prompting: ' "" ' gives exit 126 should give 127. DONE
 
 TODO: segfault when one quote is entered (single or double) !!!!. DONE
 
-TODO: doing ctrl-c after using cat displays and extra "$".
+TODO: doing ctrl-c after using cat displays and extra "$". DONE
 
 TODO: ctrl-c should set last status to 130
 
@@ -84,11 +84,22 @@ t_shell	*init_shell(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	t_lex_result	*lexer;
-	t_parsed_result	*p;
-	t_shell			*shell;
-	char			*input;
+	struct sigaction	sa; // For handling signals with sigaction
+	struct termios		t_old;
+	struct termios		t; // For removing "^C" and "^\"
+	t_lex_result		*lexer;
+	t_parsed_result		*p;
+	t_shell				*shell;
+	char				*input;
 
+	tcgetattr(STDIN_FILENO, &t_old);
+	t = t_old;
+	t.c_lflag &= ~ECHOCTL; // Doesn't echo ^C ^\ ^....
+	ft_memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = &signal_handler;
+	sa.sa_flags = SA_SIGINFO | SA_RESTART;
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGQUIT, &sa, NULL);
 	shell = init_shell(envp);
 	if (!shell)
 		return (1);
@@ -101,10 +112,9 @@ int	main(int argc, char **argv, char **envp)
 	}
 	(void) argc;
 	(void) argv;
-	signal(SIGINT, handle_ctrl_c);
-	signal(SIGQUIT, handle_ctrl_slash);
 	while (1)
 	{
+		// printf("last signal %d\n", get_last_signal());
 		input = readline("$ ");
 		if (!input)
 			break ;
@@ -113,8 +123,10 @@ int	main(int argc, char **argv, char **envp)
 			free(input);
 			continue ;
 		}
+		set_last_signal(0);
 		tokenize_lexer(input, lexer);
 		p = parser(lexer, shell);
+		tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
 		if (execute_builtin(p, shell) != -1)
 		{
 			add_history(input);
@@ -124,10 +136,12 @@ int	main(int argc, char **argv, char **envp)
 			continue ;
 		}
 		shell->last_status = execute_commands(p, shell);
+		tcsetattr(STDIN_FILENO, TCSANOW, &t);
 		add_history(input);
 		clear_lexer(lexer);
 		free_parser(p);
 		free(input);
+		// printf("shell: %d\n", shell->last_status);
 	}
 	free_split(shell->env);
 	free(shell);
