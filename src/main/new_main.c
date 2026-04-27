@@ -29,12 +29,31 @@ TODO: prompting: ' "" ' gives exit 126 should give 127. DONE
 
 TODO: segfault when one quote is entered (single or double) !!!!. DONE
 
+TODO: ctrl-c should set last status to 130. DONE
+
+TODO: ctrl + \ should be handled. And needs to set last_status to 131. DONE
+
 TODO: doing ctrl-c after using cat displays and extra "$". DONE
 
-TODO: ctrl-c should set last status to 130
+TODO: echo $? should reset last_status to 0. DONE
 
-TODO: ctrl + \ should be handled. And needs to set last_status to 131
+TODO: reassign signals in child processes. DONE I THINK
 
+TODO: wait_all needs to reset signal after ignoring them. idk what that means. DONE I THINK
+
+TODO: Something something heredoc signals. DONE
+
+TODO: Weird output in non interactive mode:
+		% echo $? | ./minishell 
+		$ 0
+		minishell: 0: No such file or directory
+		$ % 
+
+TODO: test signals with pipes. DOING RN
+	
+TODO: cat | cat doesn't hit enter.
+
+TODO: cat | cat prints extra line or extra quit.
 */
 
 static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
@@ -57,7 +76,8 @@ static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
 	if (!ft_strncmp(args[0], "export", 7))
 		return (ms_export(shell, args));
 	if (!ft_strncmp(args[0], "unset", 6))
-		return (ms_unset(shell, args));
+		return (ms_unset(shell, args));		// Child process start
+
 	if (!ft_strncmp(args[0], "env", 4))
 		return (ms_env(shell, args));
 	if (!ft_strncmp(args[0], "exit", 5))
@@ -84,27 +104,19 @@ t_shell	*init_shell(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	struct sigaction	sa; // For handling signals with sigaction
 	struct termios		t_old;
-	struct termios		t; // For removing "^C" and "^\"
 	t_lex_result		*lexer;
 	t_parsed_result		*p;
 	t_shell				*shell;
 	char				*input;
 
 	tcgetattr(STDIN_FILENO, &t_old);
-	t = t_old;
-	t.c_lflag &= ~ECHOCTL; // Doesn't echo ^C ^\ ^....
-	ft_memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = &signal_handler;
-	sa.sa_flags = SA_SIGINFO | SA_RESTART;
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
 	shell = init_shell(envp);
 	if (!shell)
 		return (1);
 	lexer = init_lexer();
-	if (!lexer)
+	if (!lexer)		// Child process start
+
 	{
 		free_split(shell->env);
 		free(shell);
@@ -114,35 +126,38 @@ int	main(int argc, char **argv, char **envp)
 	(void) argv;
 	while (1)
 	{
-		// printf("last signal %d\n", get_last_signal());
+		new_signal_handler();
+		set_new_termios(0);
 		input = readline("$ ");
 		if (!input)
 			break ;
 		if (input[0] == '\0')
 		{
 			free(input);
-			continue ;
+			continue ;		// Child process start
+
 		}
 		set_last_signal(0);
 		tokenize_lexer(input, lexer);
 		p = parser(lexer, shell);
-		tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
-		if (execute_builtin(p, shell) != -1)
+		int builtins = execute_builtin(p, shell); 
+		if (builtins != -1)
 		{
+			shell->last_status = builtins;
 			add_history(input);
 			free_parser(p);
 			clear_lexer(lexer);
 			free(input);
 			continue ;
 		}
-		shell->last_status = execute_commands(p, shell);
-		tcsetattr(STDIN_FILENO, TCSANOW, &t);
+		else
+			shell->last_status = execute_commands(p, shell);
 		add_history(input);
 		clear_lexer(lexer);
 		free_parser(p);
 		free(input);
-		// printf("shell: %d\n", shell->last_status);
 	}
+	tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
 	free_split(shell->env);
 	free(shell);
 	free(lexer);

@@ -165,7 +165,10 @@ char	**copy_env(char **envp);
 int		get_last_signal(void);
 void	signal_handler(int sig);
 void	set_last_signal(int sig);
-
+void	set_new_termios(int on);
+void	new_signal_handler(void);
+void	reset_signal_handler(void);
+void	ignore_signal(void);
 
 // error_utils.c
 char	*ms_strappend_free(char *s1, char *s2);

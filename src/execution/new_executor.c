@@ -48,23 +48,58 @@ static void	exec_child(t_commands *command, t_shell *shell)
 	exit_error(command->argv[0]);
 }
 
+// I can just store last pid and not an array of them.
 static int	wait_all(int *pids, int n)
 {
 	int	i;
 	int	status;
 	int	last_status;
+	int	print;
+	int	any_sigquit;
 
+	print = 0;
+	any_sigquit = 0;
 	last_status = 0;
 	status = 0;
 	i = 0;
 	while (i < n)
 	{
-		waitpid(pids[i], &status, 0);
+		if (waitpid(pids[i], &status, 0) == -1)
+			break ;
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+			print = 1;
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGQUIT)
+			any_sigquit = 1;
 		if (i == n - 1)
 		{
+			if (WIFSIGNALED(status))
+			{
+				if (WTERMSIG(status) == SIGINT)
+					write(1, "\n", 1);
+				else if (WTERMSIG(status) == SIGQUIT)
+				{
+					if (WCOREDUMP(status))
+						write(1, "quit (core dumped)\n", 19);
+					else
+						write(1, "quit\n", 5);
+				}
+			}
+			if (print)
+			{
+				write(1, "\n", 1);
+			}
+			else if (any_sigquit)
+			{
+				if (WCOREDUMP(status))
+					write(1, "quit (core dumped)\n", 19);
+				else
+					write(1, "quit\n", 5);
+			}
 			if (WIFEXITED(status))
+			{
 				last_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
+			}
+			else
 				last_status = 128 + WTERMSIG(status);
 		}
 		i++;
@@ -82,6 +117,8 @@ static void	handle_heredoc(char *delimiter, t_quote_type quote, t_shell *shell)
 	int		here_doc[2];
 	int		len;
 
+	signal(SIGQUIT, SIG_IGN);
+	set_new_termios(0);
 	if (pipe(here_doc) == -1)
 		exit(1);
 	while (1)
@@ -119,6 +156,7 @@ static void	handle_heredoc(char *delimiter, t_quote_type quote, t_shell *shell)
 	}
 	close(here_doc[1]);
 	dup_and_close(here_doc[0], STDIN_FILENO);
+	set_new_termios(1);
 }
 
 static void	handle_redirects(t_commands	*command, t_shell *shell)
@@ -188,9 +226,7 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 	last_status = 0;
 	prev_pipe = -1;
 	if (!parsed_result)
-	{
 		return (0);
-	}
 	pids = malloc (sizeof(int) * parsed_result->command_count);
 	if (!pids)
 		return (1);
@@ -202,7 +238,13 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 			return (1);
 		pid = fork();
 		if (pid == 0)
+		{
+			// TODO: restore signal defaults
+			signal(SIGINT, SIG_DFL);
+			signal(SIGQUIT, SIG_DFL);
+			set_new_termios(1);
 			execute_single_command(&parsed_result->commands[i], shell, pipe_fd, &prev_pipe);
+		}
 		if (pid < 0)
 		{
 			close_if_open(&pipe_fd[0]);
@@ -223,7 +265,9 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 		}
 		i++;
 	}
+	ignore_signal();
 	last_status = wait_all(pids, parsed_result->command_count);
+	new_signal_handler();
 	close_if_open(&pipe_fd[0]);
 	close_if_open(&pipe_fd[1]);
 	free(pids);

@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 08:29:13 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/25 15:39:04 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/27 17:01:53 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,7 @@ void	signal_handler(int sig)
 		else if (sig == SIGQUIT)
 		{
 			// Don't save this signal
-			rl_on_new_line();
-			rl_redisplay();
+			;
 		}
 		else
 			g = 0;
@@ -59,4 +58,43 @@ int	get_last_signal(void)
 void	set_last_signal(int sig)
 {
 	g = sig;
+}
+
+void	set_new_termios(int on)
+{
+	struct termios	t;
+
+	if (tcgetattr(STDIN_FILENO, &t) == -1)
+		return ;
+	if (on)
+		t.c_lflag |= ECHOCTL;
+	else
+		t.c_lflag &= ~ECHOCTL;
+	tcsetattr(STDIN_FILENO, TCSANOW, &t);
+}
+
+void	new_signal_handler(void)
+{
+	struct sigaction	sa;
+	struct sigaction	sa2;
+
+	ft_memset(&sa, 0, sizeof(sa2));
+	sa2.sa_handler = SIG_IGN;
+	ft_memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = &signal_handler;
+	sa.sa_flags =  SA_RESTART;
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGQUIT, &sa2, NULL);
+}
+
+void	ignore_signal(void)
+{
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+}
+
+void	reset_signal_handler(void)
+{
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 }
