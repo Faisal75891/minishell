@@ -26,7 +26,6 @@
 # include <readline/history.h>
 # include <termios.h>
 
-
 // stores the shell
 // and the status of the last command.
 typedef struct s_shell

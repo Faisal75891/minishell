@@ -72,18 +72,6 @@ static int	wait_all(int *pids, int n)
 			any_sigquit = 1;
 		if (i == n - 1)
 		{
-			if (WIFSIGNALED(status))
-			{
-				if (WTERMSIG(status) == SIGINT)
-					write(1, "\n", 1);
-				else if (WTERMSIG(status) == SIGQUIT)
-				{
-					if (WCOREDUMP(status))
-						write(1, "quit (core dumped)\n", 19);
-					else
-						write(1, "quit\n", 5);
-				}
-			}
 			if (print)
 			{
 				write(1, "\n", 1);

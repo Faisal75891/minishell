@@ -29,10 +29,6 @@ TODO: prompting: ' "" ' gives exit 126 should give 127. DONE
 
 TODO: segfault when one quote is entered (single or double) !!!!. DONE
 
-TODO: ctrl-c should set last status to 130. DONE
-
-TODO: ctrl + \ should be handled. And needs to set last_status to 131. DONE
-
 TODO: doing ctrl-c after using cat displays and extra "$". DONE
 
 TODO: echo $? should reset last_status to 0. DONE
@@ -43,17 +39,15 @@ TODO: wait_all needs to reset signal after ignoring them. idk what that means. D
 
 TODO: Something something heredoc signals. DONE
 
-TODO: Weird output in non interactive mode:
-		% echo $? | ./minishell 
-		$ 0
-		minishell: 0: No such file or directory
-		$ % 
+TODO: cat | cat prints extra line or extra quit. DONE.
 
-TODO: test signals with pipes. DOING RN
-	
-TODO: cat | cat doesn't hit enter.
 
-TODO: cat | cat prints extra line or extra quit.
+
+
+
+
+
+
 */
 
 static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
@@ -76,8 +70,7 @@ static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
 	if (!ft_strncmp(args[0], "export", 7))
 		return (ms_export(shell, args));
 	if (!ft_strncmp(args[0], "unset", 6))
-		return (ms_unset(shell, args));		// Child process start
-
+		return (ms_unset(shell, args));
 	if (!ft_strncmp(args[0], "env", 4))
 		return (ms_env(shell, args));
 	if (!ft_strncmp(args[0], "exit", 5))
@@ -104,19 +97,22 @@ t_shell	*init_shell(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	struct termios		t_old;
+	//struct termios		t_old;
 	t_lex_result		*lexer;
 	t_parsed_result		*p;
 	t_shell				*shell;
 	char				*input;
 
-	tcgetattr(STDIN_FILENO, &t_old);
+	if (isatty(STDIN_FILENO) && isatty(STDERR_FILENO))
+		printf("Starting in interactive mode\n");
+	else
+		printf("non-interactive mode\n");
+	//tcgetattr(STDIN_FILENO, &t_old);
 	shell = init_shell(envp);
 	if (!shell)
 		return (1);
 	lexer = init_lexer();
-	if (!lexer)		// Child process start
-
+	if (!lexer)
 	{
 		free_split(shell->env);
 		free(shell);
@@ -126,18 +122,19 @@ int	main(int argc, char **argv, char **envp)
 	(void) argv;
 	while (1)
 	{
+		char	*ps1 = get_env_value("PWD", shell->env);
 		new_signal_handler();
 		set_new_termios(0);
+		// write(1, ps1, ft_strlen(ps1));
+		// write(1, "\n", 1);
 		input = readline("$ ");
 		if (!input)
 			break ;
 		if (input[0] == '\0')
 		{
 			free(input);
-			continue ;		// Child process start
-
+			continue ;
 		}
-		set_last_signal(0);
 		tokenize_lexer(input, lexer);
 		p = parser(lexer, shell);
 		int builtins = execute_builtin(p, shell); 
@@ -157,7 +154,7 @@ int	main(int argc, char **argv, char **envp)
 		free_parser(p);
 		free(input);
 	}
-	tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
+	//tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
 	free_split(shell->env);
 	free(shell);
 	free(lexer);
