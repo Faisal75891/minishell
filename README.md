@@ -16,13 +16,6 @@ make
 ```bash
 exit or CTRL-D
 ```
-## what's happening
-
-### the vibe
-- read input → parse it → **expand `$`** → fork it → execute it
-- saves ur commands to `.history` (just logging for now)
-- tries to find commands in `PATH` automatically (now hooked up properly no cap)
-
 ### file structure
 
 ```
@@ -40,7 +33,6 @@ libft/              → custom C library (ft_* functions)
 ### bugs squashed:
 - ✅ memory leaks in `read_command()` 
 - ✅ `fork()` with no error handling
-- ✅ typo `.PHONEY` → `.PHONY`
 - ✅ main loop, now using `t_shell` (env + last_status)
 - ✅ wired builtins to the executor so they actually run instead of getting eaten by `execve`
 - ✅ fixed `PATH` resolution so `execve` stops malding and actually runs external commands like `ls`
@@ -97,13 +89,6 @@ libft/              → custom C library (ft_* functions)
   - It uses new_executor and new parser.
 
 # What i Did:
-  - I tracked the type of quote for redirects
-  - e.g: " > 'outfile.txt'" I tracked the type of quote which is single_quote
-  This is mainly for here_doc expansions.
-  - I added expansion by checking if the delimeter is quoted or not, if not, I expand every line entered.
-  - Idk where to add signals
-
-# What i Did:
 - I added -g flag in the makefile for better debugging,
 - I am only running from test_executor.c file to test stuff.
 - I added free_parser() function.
@@ -111,13 +96,23 @@ libft/              → custom C library (ft_* functions)
 
 ## coming soon
 
-- [ ] pipes `|` (chain commands fr fr) **– core already there, needs polish & testing**
-- [ ] redirects `>`, `<`, `>>` (file I/O szn)
-- [ ] quotes handling (single + double quotes)
-- [ ] environment variable expansion (`$VAR`, `$?`) **– mostly done, edge-cases & quotes left**
 - [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap) **– handlers exist, disabled in main for now**
-- [ ] yeet debug spam once exec layer is stable
+  - TODO: Weird output in non interactive mode:
+		% echo $? | ./minishell 
+		$ 0
+		minishell: 0: No such file or directory
+		$ %
+		(extra line)
 
+  - TODO: test signals with pipes. DOING RN
+
+  - TODO: expand ~
+
+  - TODO: ctrl-c should set last status to 130.
+
+  - TODO: ctrl + \ should be handled. And needs to set last_status to 131.
+
+  - TODO: in non-interactive mode don't echo the prompt and the command entered.
+
+  - TODO: cd should change pwd in env
 ---
-
-**status:** project restructured and clean af, executor pipeline is getting un-cooked. builtins and external `PATH` mapping are fully online, so `ls` and `cd` actually do things now instead of segfaulting. execve is fixed but we still gotta lock in pipes & redirects to make it a real shell vibe.
