@@ -12,20 +12,6 @@
 
 #include "../../include/minishell.h"
 
-/*
-THINGS TO THINK ABOUT:
-
-	How does the shell execute commands?
-	How does it execute programs and .c files?
-		-> Maybe it adds the programs to the path temporarily...
-
-	How are multiple redirects for one command handled?
-		-> {cat > file1.txt > file2.txt} Only file2.txt has text...
-		*I'll assume only the last redirect will be active. Others will only be opened/created
-
-	What should the order of execution be when dealing with a long command?
-*/
-
 void	exit_error(char *command)
 {
 	if (errno == ENOENT)
@@ -49,32 +35,59 @@ static void	exec_child(t_commands *command, t_shell *shell)
 {
 	char	*full_command;
 
-	full_command = get_full_command(command->argv[0], shell->env);
-	if (!full_command)
-		exit(2);
-	free(command->argv[0]);
-	command->argv[0] = full_command;
-	execve(command->argv[0], command->argv, shell->env);
+	if (command->argv[0][0] == '\0')
+		full_command = strdup(command->argv[0]);
+	else
+	{
+		full_command = get_full_command(command->argv[0], shell->env);
+		if (!full_command)
+			exit(1);
+	}
+	execve(full_command, command->argv, shell->env);
+	free(full_command);
 	exit_error(command->argv[0]);
 }
 
+// I can just store last pid and not an array of them.
 static int	wait_all(int *pids, int n)
 {
 	int	i;
 	int	status;
 	int	last_status;
+	int	print;
+	int	any_sigquit;
 
+	print = 0;
+	any_sigquit = 0;
 	last_status = 0;
 	status = 0;
 	i = 0;
 	while (i < n)
 	{
-		waitpid(pids[i], &status, 0);
+		if (waitpid(pids[i], &status, 0) == -1)
+			break ;
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+			print = 1;
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGQUIT)
+			any_sigquit = 1;
 		if (i == n - 1)
 		{
+			if (print)
+			{
+				write(1, "\n", 1);
+			}
+			else if (any_sigquit)
+			{
+				if (WCOREDUMP(status))
+					write(1, "quit (core dumped)\n", 19);
+				else
+					write(1, "quit\n", 5);
+			}
 			if (WIFEXITED(status))
+			{
 				last_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
+			}
+			else
 				last_status = 128 + WTERMSIG(status);
 		}
 		i++;
@@ -82,18 +95,23 @@ static int	wait_all(int *pids, int n)
 	return (last_status);
 }
 
-// reads from the stdin
-// and writes to the here_doc pipe.
-// I probably need to expand the delimiter
-void	handle_heredoc(char *delimiter)
+// reads from stdin and writes heredoc contents into a pipe.
+// when delimiter is unquoted, expand variables in each line.
+// TODO: handle signals (chatgpt told me).
+static void	handle_heredoc(char *delimiter, t_quote_type quote, t_shell *shell)
 {
 	char	*line;
+	char	*content;
 	int		here_doc[2];
+	int		len;
 
+	signal(SIGQUIT, SIG_IGN);
+	set_new_termios(0);
 	if (pipe(here_doc) == -1)
 		exit(1);
 	while (1)
 	{
+		write(STDOUT_FILENO, "> ", 2);
 		line = get_next_line(0);
 		if (!line)
 		{
@@ -101,28 +119,35 @@ void	handle_heredoc(char *delimiter)
 			close(here_doc[1]);
 			return ;
 		}
-		line[ft_strlen(line) - 1] = '\0';
-		if (!ft_strncmp(delimiter, line, ft_strlen(line) - 1))
+		len = (int)ft_strlen(line);
+		if (len > 0 && line[len - 1] == '\n')
+			line[len - 1] = '\0';
+		if (ft_strncmp(delimiter, line, ft_strlen(delimiter) + 1) == 0)
 		{
 			free(line);
 			break ;
 		}
-		line[ft_strlen(line)] = '\n';
-		write(here_doc[1], line, ft_strlen(line));
+		if (quote == Q_NONE)
+			content = expand_variables(line, Q_NONE, shell);
+		else
+			content = ft_strdup(line);
 		free(line);
+		if (!content)
+		{
+			close(here_doc[0]);
+			close(here_doc[1]);
+			exit(1);
+		}
+		write(here_doc[1], content, ft_strlen(content));
+		write(here_doc[1], "\n", 1);
+		free(content);
 	}
 	close(here_doc[1]);
 	dup_and_close(here_doc[0], STDIN_FILENO);
+	set_new_termios(1);
 }
 
-// exits if there is error
-/*
-What if the file doesn't have read or write permissions?
-What if the file doesn't exist?
-What if the file doesn't 
-What if the file doesn't
-*/
-static void	handle_redirects(t_commands	*command)
+static void	handle_redirects(t_commands	*command, t_shell *shell)
 {
 	int	fd;
 	int	i;
@@ -133,10 +158,11 @@ static void	handle_redirects(t_commands	*command)
 	while (i < command->redirections_count)
 	{
 		if (command->redirections[i].type == TOK_HEREDOC && command->redirections[i].target)
-			handle_heredoc(command->redirections[i].target);
+			handle_heredoc(command->redirections[i].target,
+				command->redirections[i].quote, shell);
 		else if (command->redirections[i].type == TOK_REDIR_APPEND && command->redirections[i].target)
 		{
-			fd = open(command->redirections[i].target, O_RDWR | O_CREAT | O_APPEND, 0644);
+			fd = open(command->redirections[i].target, O_WRONLY | O_CREAT | O_APPEND, 0644);
 			if (fd < 0)
 				exit_error(command->redirections[i].target);
 			dup_and_close(fd, STDOUT_FILENO);
@@ -150,7 +176,7 @@ static void	handle_redirects(t_commands	*command)
 		}
 		else if (command->redirections[i].type == TOK_REDIR_OUT && command->redirections[i].target)
 		{
-			fd = open(command->redirections[i].target, O_RDWR | O_CREAT | O_TRUNC, 0644);
+			fd = open(command->redirections[i].target, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 			if (fd < 0)
 				exit_error(command->redirections[i].target);
 			dup_and_close(fd, STDOUT_FILENO);
@@ -170,12 +196,11 @@ void	execute_single_command(t_commands *command, t_shell *shell, int pipe_fd[2],
 		dup_and_close(pipe_fd[1], STDOUT_FILENO);
 	close_if_open(&pipe_fd[0]);
 	//  2. redirect
-	handle_redirects(command);
+	handle_redirects(command, shell);
 	// 	3. execute
 	exec_child(command, shell);
 }
 
-// EXAMPLE: cat < input.txt | sort > out.txt
 int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 {
 	pid_t	pid;
@@ -189,9 +214,7 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 	last_status = 0;
 	prev_pipe = -1;
 	if (!parsed_result)
-	{
 		return (0);
-	}
 	pids = malloc (sizeof(int) * parsed_result->command_count);
 	if (!pids)
 		return (1);
@@ -203,7 +226,21 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 			return (1);
 		pid = fork();
 		if (pid == 0)
+		{
+			// TODO: restore signal defaults
+			signal(SIGINT, SIG_DFL);
+			signal(SIGQUIT, SIG_DFL);
+			set_new_termios(1);
 			execute_single_command(&parsed_result->commands[i], shell, pipe_fd, &prev_pipe);
+		}
+		if (pid < 0)
+		{
+			close_if_open(&pipe_fd[0]);
+			close_if_open(&pipe_fd[1]);
+			free(pids);
+			perror("fork");
+			return (1);
+		}
 		else
 		{
 			pids[i] = pid;
@@ -216,7 +253,9 @@ int	execute_commands(t_parsed_result *parsed_result, t_shell *shell)
 		}
 		i++;
 	}
+	ignore_signal();
 	last_status = wait_all(pids, parsed_result->command_count);
+	new_signal_handler();
 	close_if_open(&pipe_fd[0]);
 	close_if_open(&pipe_fd[1]);
 	free(pids);

@@ -96,6 +96,7 @@ void	close_if_open(int *fd);
 void	dup_and_close(int fd1, int fd2);
 int	init_pipe_fd(int pipe_fd[2], int i, int count);
 void	manage_pipe_fds(int *prev_pipe, int pipe_fd[2], int i, int count);
+int	spawn_child_process(t_commands *command, t_shell *shell, int pipe_fd[2], int *prev_pipe);
 
 // cleanup.c
 void	free_split(char **arr);
@@ -142,7 +143,7 @@ int		handle_command(char *command, t_shell *shell);
 int		execute_command(char **arg_list, t_shell *shell);
 
 // NEW_EXECUTOR
-int		execute_commands(t_parsed_result *parsed_result, t_shell *shell);
+int	execute_commands(t_parsed_result *parsed_result, t_shell *shell);
 
 // pipes.c - TODO
 int		has_pipe(char *command);
