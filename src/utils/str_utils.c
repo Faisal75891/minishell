@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+// #include "minishell.h"
+#include "../../include/minishell.h"
 
 int	ms_str_has_dollar(const char *s)
 {

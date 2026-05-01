@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   expansion.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/11 20:08:24 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 00:33:19 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+// #include "minishell.h"
+#include "../../include/minishell.h"
 
 static char	*handle_special_vars(const char *s, int *i, t_shell *shell)
 {
@@ -48,7 +49,7 @@ static char	*handle_named_var(const char *s, int *i, t_shell *shell)
 	return (ft_strdup(""));
 }
 
-static char	*handle_dollar_seq(const char *s, int *i, t_shell *shell)
+char	*handle_dollar_seq(const char *s, int *i, t_shell *shell)
 {
 	char	*res;
 
@@ -78,37 +79,13 @@ static char	*expand_loop(const char *s, t_quote_type quote, t_shell *shell)
 	while (s[i])
 	{
 		if (quote == Q_DOUBLE)
-		{
-			if (s[i] == '$')
-			{
-				to_add = handle_dollar_seq(s, &i, shell);
-				res = ms_strappend_free(res, to_add);
-			}
-			else
-			{
-				res = ms_strappend_char(res, s[i]);
-				i++;
-			}
-		}
+			res = append_char(res, s, &i, shell);
 		else
 		{
-			if (mode == 0 && s[i] == '\'') { mode = 1; i++; continue; }
-			if (mode == 1 && s[i] == '\'') { mode = 0; i++; continue; }
-			if (mode == 0 && s[i] == '"')  { mode = 2; i++; continue; }
-			if (mode == 2 && s[i] == '"')  { mode = 0; i++; continue; }
-
-			if (s[i] == '$' && mode != 1)
-			{
-				to_add = handle_dollar_seq(s, &i, shell);
-				res = ms_strappend_free(res, to_add);
-			}
-			else
-			{
-				res = ms_strappend_char(res, s[i]);
-				i++;
-			}
+			mode = set_mode(s, &i);
+			if (mode != 1)
+				res = append_char(res, s, &i, shell);
 		}
-
 		if (!res)
 			return (NULL);
 	}

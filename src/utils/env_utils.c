@@ -6,11 +6,12 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/23 00:20:00 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/05/01 23:47:14 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+// #include "minishell.h"
+#include "../../include/minishell.h"
 
 // get environment variable value by name (NAME without '=')
 char	*get_env_value(const char *name, char **env)

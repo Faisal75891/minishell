@@ -40,7 +40,7 @@ CC			= cc
 CFLAGS		= -Wall -Wextra -Werror -g
 LDFLAGS     =
 
-ifeq ($(UNAME_S), linux)
+ifeq ($(UNAME_S), Linux)
     LDFLAGS += -lreadline
 else ifeq ($(UNAME_S), Darwin)
     READLINE_PATH = $(shell brew --prefix readline)

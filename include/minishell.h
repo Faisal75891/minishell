@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 00:28:15 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/05/02 00:42:45 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,8 +184,11 @@ int		word_fail(t_lex_result *lexer, char *buffer, int err);
 int		word_commit(t_lex_result *lexer, char *buffer, int);
 void	exit_error(char *command);
 
-
+// char_utils.c
 int		ms_is_var_char(int c, int first);
+int		set_mode(const char	*s, int *i);
+char	*append_char(char *res, const char *s, int *i, t_shell *shell);
+char	*handle_dollar_seq(const char *s, int *i, t_shell *shell);
 
 int		ft_isspace(char c);
 int		is_operator_char(char c);

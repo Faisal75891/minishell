@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   quotes.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/26 10:24:39 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/11 17:01:11 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/01 23:47:51 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+// #include "minishell.h"
+#include "../../include/minishell.h"
 
 // TODO: quote handling
 // - handle single quotes (no expansion) ------------DONE

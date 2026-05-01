@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   error_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/07 19:18:54 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/01 23:43:17 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+// #include "minishell.h"
+#include "../../include/minishell.h"
 
 // small generic helpers, can be reused across project
 char	*ms_strappend_free(char *s1, char *s2)
