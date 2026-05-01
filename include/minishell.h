@@ -150,6 +150,8 @@ int		has_pipe(char *command);
 int		run_pipeline(char	*command, t_shell *shell);
 
 // redirects.c - TODO
+int		wait_all(int *pids, int n);
+void	handle_redirects(t_commands *command, t_shell *shell);
 
 // builtisignal(SIGINT, SIG_DFL);
 int		ms_cd(t_shell *shell, char **args);
