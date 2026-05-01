@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/25 18:10:55 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/06 16:14:56 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 00:58:24 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,24 +49,6 @@ static int	handle_operator(const char *command, t_lex_result *lexer, int index)
 	if (command[i] == '<')
 		return (add_redirect_in(lexer), i + 1);
 	return (i);
-}
-
-void	handle_error(t_lex_result *lexer)
-{
-	if (!lexer || lexer->error == 0)
-		return ;
-	if (lexer->error == 2)
-		ft_putendl_fd("minishell: syntax error: unclosed quote", 2);
-	else if (lexer->error == 1)
-		ft_putendl_fd("minishell: allocation error", 2);
-	else if (lexer->error == 3)
-	{
-		if (!lexer->unexpected_token)
-			lexer->unexpected_token = "newline";
-		ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
-		ft_putstr_fd(lexer->unexpected_token, 2);
-		ft_putendl_fd("'", 2);
-	}
 }
 
 static int	check_operator_word(t_lex_result *lexer, const char *command, int i)
@@ -136,27 +118,4 @@ void	tokenize_lexer(const char *command, t_lex_result *lexer)
 	check_last_token(lexer);
 	if (lexer->error > 0)
 		handle_error(lexer);
-}
-
-void	clear_lexer(t_lex_result *lexer)
-{
-	t_token	*current;
-	t_token	*next;
-
-	next = NULL;
-	current = lexer->head;
-	while (current)
-	{
-		next = current->next;
-		free(current->word);
-		free(current);
-		current = next;
-	}
-	if (lexer->unexpected_token)
-		free(lexer->unexpected_token);
-	lexer->unexpected_token = NULL;
-	lexer->count = 0;
-	lexer->error = 0;
-	lexer->head = NULL;
-	lexer->tail = NULL;
 }

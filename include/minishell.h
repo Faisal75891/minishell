@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:03:21 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/05/02 02:26:53 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,17 @@ typedef struct s_shell
 	char	**env;
 	int		last_status;
 }	t_shell;
+
+// maybe make this an enum
+typedef	struct s_quote_status
+{
+	int	new_quote;
+	int	is_unquoted;
+	int	is_double;
+	int	is_single;
+	int	quote;
+	int	prev_quote;
+}	t_quote_status;
 
 typedef enum e_token_type
 {
@@ -134,13 +145,14 @@ t_lex_result	*init_lexer(void);
 t_token			*create_token(t_token_type type, t_quote_type quote, const char *word);
 void			append_token(t_lex_result *lexer, t_token *token);
 void			tokenize_lexer(const char *command, t_lex_result *lexer);
+void			handle_error(t_lex_result *lexer);
 void			clear_lexer(t_lex_result *lexer);
 // lexer_utils.c
-void	add_here_doc(t_lex_result *lexer);
-void	add_append(t_lex_result *lexer);
-void	add_pipe(t_lex_result *lexer);
-void	add_redirect_out(t_lex_result *lexer);
-void	add_redirect_in(t_lex_result *lexer);
+void			add_here_doc(t_lex_result *lexer);
+void			add_append(t_lex_result *lexer);
+void			add_pipe(t_lex_result *lexer);
+void			add_redirect_out(t_lex_result *lexer);
+void			add_redirect_in(t_lex_result *lexer);
 
 
 // quotes.c
@@ -191,7 +203,8 @@ void	ignore_signal(void);
 // error_utils.c
 char	*ms_strappend_free(char *s1, char *s2);
 char	*ms_strappend_char(char *s, char c);
-int		word_fail(t_lex_result *lexer, char *buffer, int err);
+int		word_fail(t_lex_result *lexer, char *	char	*to_add;
+buffer, int err);
 int		word_commit(t_lex_result *lexer, char *buffer, int);
 void	exit_error(char *command);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   char_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 11:38:58 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:03:21 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/05/02 02:26:27 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,4 +61,22 @@ char	*append_char(char *res, const char *s, int *i, t_shell *shell)
 		(*i)++;
 	}
 	return (res);
+}
+
+void	handle_error(t_lex_result *lexer)
+{
+	if (!lexer || lexer->error == 0)
+		return ;
+	if (lexer->error == 2)
+		ft_putendl_fd("minishell: syntax error: unclosed quote", 2);
+	else if (lexer->error == 1)
+		ft_putendl_fd("minishell: allocation error", 2);
+	else if (lexer->error == 3)
+	{
+		if (!lexer->unexpected_token)
+			lexer->unexpected_token = "newline";
+		ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+		ft_putstr_fd(lexer->unexpected_token, 2);
+		ft_putendl_fd("'", 2);
+	}
 }

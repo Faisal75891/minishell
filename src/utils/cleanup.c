@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cleanup.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:20:30 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/05/02 02:27:03 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,4 +88,27 @@ void	free_parser(t_parsed_result *parser)
 	if (parser->commands)
 		free(parser->commands);
 	free(parser);
+}
+
+void	clear_lexer(t_lex_result *lexer)
+{
+	t_token	*current;
+	t_token	*next;
+
+	next = NULL;
+	current = lexer->head;
+	while (current)
+	{
+		next = current->next;
+		free(current->word);
+		free(current);
+		current = next;
+	}
+	if (lexer->unexpected_token)
+		free(lexer->unexpected_token);
+	lexer->unexpected_token = NULL;
+	lexer->count = 0;
+	lexer->error = 0;
+	lexer->head = NULL;
+	lexer->tail = NULL;
 }
