@@ -1,9 +1,8 @@
 #include <stdio.h>
-#include "minishell.h"
 #include <stdlib.h>
 
 
-size_t ft_strlen(const char *s)
+int ft_strlen(const char *s)
 {
     int len;
 
@@ -61,6 +60,17 @@ char	*ft_strdup(const char *s)
 }
 
 
+char	*ms_strappend_char(char *s, char c)
+{
+	char	buf[2];
+	char	*tmp;
+
+	buf[0] = c;
+	buf[1] = '\0';
+	tmp = ft_strjoin(s, buf);
+	free(s);
+	return (tmp);
+}
 
 static int	is_quote(char c, int quote)
 {
@@ -92,8 +102,8 @@ int main(void)
 		"echo '",              // only opening single quote
 		"echo \\\"a'b",          // missing closing double quote
 		"echo 'a\\\"b",          // missing closing single quote
-		"\\ \\",
-		"\\ ",
+		"\ \\",
+		"\ ",
 		"\\",
 		"'\\'",
 		NULL
@@ -104,6 +114,7 @@ int main(void)
  	   	char    *buffer = ft_strdup("");
  	   	printf("word: [%s]\n", word[j]);
 		int 	i = 0;
+		int     new_quote = 0;
 		int 	quote = 0;
 		while (word[j][i])
 		{

@@ -18,9 +18,9 @@
 // - cd <path> -> change directory
 // - update PWD and OLDPWD env vars
 
-static char*get_cd_path(t_shell *shell, char **args, char *oldpwd)
+static char	*get_cd_path(t_shell *shell, char **args, char *oldpwd)
 {
-	char    *path;
+	char	*path;
 
 	if (!args[1])
 	{
@@ -41,10 +41,10 @@ static char*get_cd_path(t_shell *shell, char **args, char *oldpwd)
 	return (path);
 }
 
-int ms_cd(t_shell *shell, char **args)
+int	ms_cd(t_shell *shell, char **args)
 {
-	char    *path;
-	char    *oldpwd;
+	char	*path;
+	char	*oldpwd;
 
 	oldpwd = getcwd(NULL, 0);
 	path = get_cd_path(shell, args, oldpwd);

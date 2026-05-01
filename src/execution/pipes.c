@@ -6,29 +6,13 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/21 21:46:30 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/22 10:11:11 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/01 00:00:00 by githelper        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// TODO: pipe implementation
-// - parse pipe operators |
-int	has_pipe(char *command)
-{
-	int	i;
-
-	i = 0;
-	while (command[i])
-	{
-		if (command[i] == '|')
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-char	**split_pipeline(char *command)
+static char	**split_pipeline(char *command)
 {
 	char	**commands;
 	char	*trimmed_command;
@@ -59,7 +43,7 @@ static void	exec_child(char *command, t_shell *shell)
 
 	arg_list = get_args(command, shell);
 	if (!arg_list)
-		exit (1);
+		exit(1);
 	execve(arg_list[0], arg_list, shell->env);
 	if (errno == ENOENT)
 	{
@@ -79,69 +63,15 @@ static void	exec_child(char *command, t_shell *shell)
 	exit(1);
 }
 
-
-void	pipeline(char *command, t_shell *shell, int prev_pipe, int pipe_fd[2], int index, int n)
+static int	spawn_pipeline_processes(char **cmds, t_shell *shell,
+	int *pids, int n)
 {
-	// setup I/O
-	if (prev_pipe != -1)
-		dup_and_close(prev_pipe, STDIN_FILENO);
-	if (index < n - 1)
-		dup_and_close(pipe_fd[1], STDOUT_FILENO);
-	close_if_open(&pipe_fd[0]);
-	// then execute the command
-	exec_child(command, shell);
-}
-
-int	wait_all(int *pids, int n)
-{
+	int	prev_pipe;
+	int	pipe_fd[2];
 	int	i;
-	int	status;
-	int	last_status;
-
-	last_status = 0;
-	status = 0;
-	i = 0;
-	while (i < n)
-	{
-		waitpid(pids[i], &status, 0);
-		if (i == n - 1)
-		{
-			if (WIFEXITED(status))
-				last_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-				last_status = 128 + WTERMSIG(status);
-		}
-		i++;
-	}
-	return (last_status);
-}
-
-// - handle multiple pipes
-int	run_pipeline(char	*command, t_shell *shell)
-{
 	pid_t	pid;
-	char	**cmds;
-	int		pipe_fd[2];
-	int		*pids;
-	int		last_status;
-	int		prev_pipe;
-	int		n;
-	int		i;
 
-	cmds = split_pipeline(command);
-	if (!cmds)
-	{
-		shell->last_status = 1;
-		return (0);
-	}
 	prev_pipe = -1;
-	n = split_len(cmds);
-	pids = malloc(n * sizeof(n));
-	if (!pids)
-	{
-		free_split(cmds);
-		return (1);
-	}
 	i = 0;
 	while (i < n)
 	{
@@ -150,8 +80,6 @@ int	run_pipeline(char	*command, t_shell *shell)
 		if (i < n - 1 && pipe(pipe_fd) == -1)
 		{
 			close_if_open(&prev_pipe);
-			free_split(cmds);
-			free(pids);
 			return (1);
 		}
 		pid = fork();
@@ -159,21 +87,20 @@ int	run_pipeline(char	*command, t_shell *shell)
 		{
 			signal(SIGINT, SIG_DFL);
 			signal(SIGQUIT, SIG_DFL);
-			pipeline(cmds[i], shell, prev_pipe, pipe_fd, i, n);
+			if (prev_pipe != -1)
+				dup_and_close(prev_pipe, STDIN_FILENO);
+			if (i < n - 1)
+				dup_and_close(pipe_fd[1], STDOUT_FILENO);
+			close_if_open(&pipe_fd[0]);
+			exec_child(cmds[i], shell);
 		}
 		else if (pid < 0)
 		{
+			while (--i >= 0)
+				waitpid(pids[i], NULL, 0);
 			close_if_open(&prev_pipe);
 			close_if_open(&pipe_fd[0]);
 			close_if_open(&pipe_fd[1]);
-			free_split(cmds);
-			int j = 0;
-			while (j < i)
-			{
-				waitpid(pids[j], NULL, 0);
-				j++;
-			}
-			free(pids);
 			return (1);
 		}
 		pids[i] = pid;
@@ -185,9 +112,52 @@ int	run_pipeline(char	*command, t_shell *shell)
 		}
 		i++;
 	}
-	last_status = wait_all(pids, n);
 	close_if_open(&prev_pipe);
+	return (0);
+}
+
+static int	collect_pipeline_status(int *pids, int n)
+{
+	int	status;
+
+	status = 0;
+	while (n-- > 0)
+		waitpid(pids[n], &status, 0);
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	if (WIFSIGNALED(status))
+		return (128 + WTERMSIG(status));
+	return (status);
+}
+
+int	run_pipeline(char *command, t_shell *shell)
+{
+	char	**cmds;
+	int	*pids;
+	int	n;
+	int	status;
+
+	cmds = split_pipeline(command);
+	if (!cmds)
+	{
+		shell->last_status = 1;
+		return (0);
+	}
+	n = split_len(cmds);
+	pids = malloc(sizeof(int) * n);
+	if (!pids)
+	{
+		free_split(cmds);
+		return (1);
+	}
+	if (spawn_pipeline_processes(cmds, shell, pids, n))
+	{
+		free_split(cmds);
+		free(pids);
+		return (1);
+	}
+	status = collect_pipeline_status(pids, n);
 	free_split(cmds);
 	free(pids);
-	return (last_status);
+	return (status);
 }

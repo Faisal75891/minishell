@@ -14,7 +14,7 @@
 
 static int	is_valid_id(char *arg)
 {
-	int i;
+	int	i;
 
 	if (!arg || !*arg || (!ft_isalpha(*arg) && *arg != '_'))
 		return (0);
@@ -30,7 +30,7 @@ static int	is_valid_id(char *arg)
 
 static void	print_exports(t_shell *shell)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (shell->env[i])
@@ -43,14 +43,14 @@ static void	print_exports(t_shell *shell)
 
 static void	add_or_update_env(t_shell *shell, char *arg, int len)
 {
-	int i;
-	char    **new_env;
+	int		i;
+	char	**new_env;
 
 	i = -1;
 	while (shell->env[++i])
 	{
-		if (!ft_strncmp(shell->env[i], arg, len) && 
-			(shell->env[i][len] == '=' || shell->env[i][len] == '\0'))
+		if (!ft_strncmp(shell->env[i], arg, len)
+			&& (shell->env[i][len] == '=' || shell->env[i][len] == '\0'))
 		{
 			free(shell->env[i]);
 			shell->env[i] = ft_strdup(arg);
@@ -72,20 +72,20 @@ static void	add_or_update_env(t_shell *shell, char *arg, int len)
 static int	export_error(char *arg)
 {
 	ft_putstr_fd("minishell: export: `", 2);
-    ft_putstr_fd(arg, 2);
-    ft_putendl_fd("': not a valid identifier", 2);
-    return (1);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd("': not a valid identifier", 2);
+	return (1);
 }
 
 int	ms_export(t_shell *shell, char **args)
 {
-    int	i;
-    int	len;
-    int	status;
+	int	i;
+	int	len;
+	int	status;
 
-    if (!args[1])
-        return (print_exports(shell), 0);
-    status = 0;
+	if (!args[1])
+		return (print_exports(shell), 0);
+	status = 0;
 	i = 0;
 	while (args[++i])
 	{

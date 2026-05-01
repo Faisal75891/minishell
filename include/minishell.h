@@ -24,6 +24,7 @@
 # include "../libft/libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <termios.h>
 
 // stores the shell
 // and the status of the last command.
@@ -62,6 +63,7 @@ typedef struct s_redirections
 {
 	char			*target;
 	t_token_type	type;
+	t_quote_type	quote;
 }	t_redirections;
 
 typedef struct s_commands
@@ -70,7 +72,6 @@ typedef struct s_commands
 	int					argc;
 	t_redirections		*redirections;
 	int					redirections_count;
-	int					heredoc;
 }	t_commands;
 
 typedef struct s_parsed_result
@@ -93,6 +94,8 @@ typedef struct s_lex_result
 // pipe_utils
 void	close_if_open(int *fd);
 void	dup_and_close(int fd1, int fd2);
+int	init_pipe_fd(int pipe_fd[2], int i, int count);
+void	manage_pipe_fds(int *prev_pipe, int pipe_fd[2], int i, int count);
 
 // cleanup.c
 void	free_split(char **arr);
@@ -112,7 +115,6 @@ t_parsed_result	*parser(t_lex_result *lexer, t_shell *shell);
 
 // old parser.
 char			*get_full_command(char *command, char **environ);
-char			*read_command(void);
 char			**get_args(char *command, t_shell *shell);
 
 // lexer.c
@@ -133,19 +135,24 @@ void	add_redirect_in(t_lex_result *lexer);
 // quotes.c
 int				add_word(const char *command, t_lex_result *lexer, int *i);
 // expansion.c
-char	*expand_variables(const char *s, t_shell *shell);
+char	*expand_variables(const char *s, t_quote_type quote, t_shell *shell);
 
 // executor.c
 int		handle_command(char *command, t_shell *shell);
 int		execute_command(char **arg_list, t_shell *shell);
+
+// NEW_EXECUTOR
+int		execute_commands(t_parsed_result *parsed_result, t_shell *shell);
 
 // pipes.c - TODO
 int		has_pipe(char *command);
 int		run_pipeline(char	*command, t_shell *shell);
 
 // redirects.c - TODO
+int		wait_all(int *pids, int n);
+void	handle_redirects(t_commands *command, t_shell *shell);
 
-// builtins
+// builtisignal(SIGINT, SIG_DFL);
 int		ms_cd(t_shell *shell, char **args);
 int		ms_echo(t_shell *shell, char **args);
 int		ms_env(t_shell *shell, char **args);
@@ -158,25 +165,27 @@ int		ms_exit(t_shell *shell, char **args);
 char	**copy_env(char **envp);
 
 // signals.c - TODO
-void	handle_ctrl_c(int sig);
-void	handle_ctrl_slash(int sig);
+int		get_last_signal(void);
+void	signal_handler(int sig);
+void	set_last_signal(int sig);
+void	set_new_termios(int on);
+void	new_signal_handler(void);
+void	reset_signal_handler(void);
+void	ignore_signal(void);
 
 // error_utils.c
 char	*ms_strappend_free(char *s1, char *s2);
 char	*ms_strappend_char(char *s, char c);
 int		word_fail(t_lex_result *lexer, char *buffer, int err);
 int		word_commit(t_lex_result *lexer, char *buffer, int);
-
+void	exit_error(char *command);
 
 
 int		ms_is_var_char(int c, int first);
 
-// str_utils.c
 int		ft_isspace(char c);
 int		is_operator_char(char c);
 int		is_redirect(t_token_type token);
 int		ms_str_has_dollar(const char *s);
-
-int execute_commands(t_parsed_result *parsed_result, t_shell *shell);
 
 #endif

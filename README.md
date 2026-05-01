@@ -1,24 +1,21 @@
+*This project has been created as part of the 42 curriculum by fbaras, samamaev*
+
 # minishell 🐚
 
 ## what is this
 
-basic shell clone, bash but make it baby mode. only runs commands rn. typeshit
+basic shell clone, bash but make it baby mode.
 
-## how to use
+## Instructions
 
 ```bash
 make
-./m
-exit        
+./minishell
 ```
-
-## what's happening
-
-### the vibe
-- read input → parse it → **expand `$`** → fork it → execute it
-- saves ur commands to `.history` (just logging for now)
-- tries to find commands in `PATH` automatically (now hooked up properly no cap)
-
+### To exit
+```bash
+exit or CTRL-D
+```
 ### file structure
 
 ```
@@ -82,36 +79,40 @@ libft/              → custom C library (ft_* functions)
   -     argv 1: ["cat", NULL], redirections: [">", "out.txt"]
   -     argv 2: ["grep", "a", NULL], redirections: ["<<", "EOF"]
   -     argv 3: ["ls", NULL], redirections: NULL
-- New_executor *(NEW)*:
+- New_executor :
   - This new executor uses the new parsed structure
   - It executes commands. typeshit.
   - It still needs work like error detection and memory leaks.
 
+- New_main :
+  - Inside it is a todo list of all the shortcomings of the program.
+  - It uses new_executor and new parser.
+
 # What i Did:
 - I added -g flag in the makefile for better debugging,
+- I am only running from test_executor.c file to test stuff.
 - I added free_parser() function.
 - I fixed a minor bug in copy_env().
-- NOTE: memory leaks are mostly from the executor not checking stuff.
-- I Wired the new_executor all the way up to `handle_command` so the shell uses the new pipeline fully
-- Pulled redirections `<` `>` `>>` setup off the bench and plugged into `new_executor`
-- Deleted the `redirects.c` file entirely. `new_executor` is the only big boss now
-- Re-tested quote matching `""` and ``, all good
-- Wired `$VAR`, `$?`, `$$` into the parser flow too
 
 ## coming soon
 
-- [ ] pipes `|` (chain commands fr fr) **– core already there, needs polish & testing**
-- [x] environment variable expansion (`$VAR`, `$?`) **– mostly done, edge-cases & quotes left**
 - [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap) **– handlers exist, disabled in main for now**
-- [ ] yeet debug spam once exec layer is stable
-- [ ] wire built-ins `cd`, `echo`, `export`, etc. into `new_executor` bc old executor handles it rn!
+  - TODO: Weird output in non interactive mode:
+		% echo $? | ./minishell 
+		$ 0
+		minishell: 0: No such file or directory
+		$ %
+		(extra line)
 
+  - TODO: test signals with pipes. DOING RN
+
+  - TODO: expand ~
+
+  - TODO: ctrl-c should set last status to 130.
+
+  - TODO: ctrl + \ should be handled. And needs to set last_status to 131.
+
+  - TODO: in non-interactive mode don't echo the prompt and the command entered.
+
+  - TODO: cd should change pwd in env
 ---
----
-
-**status:** project restructured and clean af. `new_executor` runs shell commands and file overrides like a real shell. old `executor.c` is just chilling carrying our builtin commands rn until we wrap that into the new file. But it does not mean that we are leaving the old executor js to be there.
-Rn, we switched to new_executor.c, we bypassed execute_command() from executor.c entirely, so we need to copy that check over to new_executor.c so that our shell actually handles our custom functions (cd, pwd, echo, export, etc.) again!
-
---------------
-js to understand what is happening, i need to follow the structure first and go one by one, spicially in terms of programming! I don't know why, but its completly the opposite if we talk about not proramming languages, even though - they are also laguages -> XD. This is my method of thinking, i can't get the whole idea, if i am not focused from the biggening.
-

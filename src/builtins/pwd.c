@@ -12,10 +12,7 @@
 
 #include "minishell.h"
 
-// TODO: pwd builtin
-// - print current working directory
-
-int ms_pwd(t_shell *shell, char **args)
+int	ms_pwd(t_shell *shell, char **args)
 {
 	char	cwd[1024];
 

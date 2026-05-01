@@ -37,3 +37,22 @@ void	dup_and_close(int fd1, int fd2)
 	}
 	close_if_open(&fd1);
 }
+
+int	init_pipe_fd(int pipe_fd[2], int i, int count)
+{
+	pipe_fd[0] = -1;
+	pipe_fd[1] = -1;
+	if (i < count - 1 && pipe(pipe_fd) == -1)
+		return (1);
+	return (0);
+}
+
+void	manage_pipe_fds(int *prev_pipe, int pipe_fd[2], int i, int count)
+{
+	close_if_open(prev_pipe);
+	if (i < count - 1)
+	{
+		close_if_open(&pipe_fd[1]);
+		*prev_pipe = pipe_fd[0];
+	}
+}

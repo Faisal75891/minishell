@@ -54,18 +54,3 @@ char	*get_full_path(char *command, char **paths)
 	}
 	return (free(temp_cmd), NULL);
 }
-
-char	*get_full_command(char *command, char **environ)
-{
-	char	**paths;
-	char	*full_path;
-
-	if (ft_strchr(command, '/'))
-		return (ft_strdup(command));
-	paths = get_paths(environ);
-	if (!paths)
-		return (NULL);
-	full_path = get_full_path(command, paths);
-	free_split(paths);
-	return (full_path);
-}

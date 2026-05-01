@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/06 19:59:47 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/06 21:19:49 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,12 +77,14 @@ void	free_parser(t_parsed_result *parser)
 		k = 0;
 		while (j < parser->commands[i].argc)
 		{
-			free(parser->commands[i].argv[j]);
+			if (parser->commands[i].argv[j])
+				free(parser->commands[i].argv[j]);
 			j++;
 		}
 		while (k < parser->commands[i].redirections_count)
 		{
-			free(parser->commands[i].redirections[k].target);
+			if (parser->commands[i].redirections[k].target)
+				free(parser->commands[i].redirections[k].target);
 			k++;
 		}
 		if (parser->commands[i].argv)

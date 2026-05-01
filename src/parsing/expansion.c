@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expansion.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/23 01:05:00 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/11 20:08:24 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,28 +62,53 @@ static char	*handle_dollar_seq(const char *s, int *i, t_shell *shell)
 	return (ft_substr(s, *i - 1, 2));
 }
 
-static char	*expand_loop(const char *s, t_shell *shell)
+// I will try adding the quote state from the parser
+static char	*expand_loop(const char *s, t_quote_type quote, t_shell *shell)
 {
 	int		i;
 	char	*res;
 	char	*to_add;
+	int		mode;
 
+	mode = 0;
 	res = ft_strdup("");
 	if (!res)
 		return (NULL);
 	i = 0;
 	while (s[i])
 	{
-		if (s[i] == '$')
+		if (quote == Q_DOUBLE)
 		{
-			to_add = handle_dollar_seq(s, &i, shell);
-			res = ms_strappend_free(res, to_add);
+			if (s[i] == '$')
+			{
+				to_add = handle_dollar_seq(s, &i, shell);
+				res = ms_strappend_free(res, to_add);
+			}
+			else
+			{
+				res = ms_strappend_char(res, s[i]);
+				i++;
+			}
 		}
 		else
 		{
-			res = ms_strappend_char(res, s[i]);
-			i++;
+			if (mode == 0 && s[i] == '\'') { mode = 1; i++; continue; }
+			if (mode == 1 && s[i] == '\'') { mode = 0; i++; continue; }
+			if (mode == 0 && s[i] == '"')  { mode = 2; i++; continue; }
+			if (mode == 2 && s[i] == '"')  { mode = 0; i++; continue; }
+
+			if (s[i] == '$' && mode != 1)
+			{
+				to_add = handle_dollar_seq(s, &i, shell);
+				res = ms_strappend_free(res, to_add);
+			}
+			else
+			{
+				res = ms_strappend_char(res, s[i]);
+				i++;
+			}
 		}
+
 		if (!res)
 			return (NULL);
 	}
@@ -91,11 +116,13 @@ static char	*expand_loop(const char *s, t_shell *shell)
 }
 
 // Expand $VAR, $? and $$ in a single argument string.
-char	*expand_variables(const char *s, t_shell *shell)
+char	*expand_variables(const char *s, t_quote_type quote, t_shell *shell)
 {
 	if (!s || !shell)
 		return (NULL);
-	if (!ms_str_has_dollar(s))
+	if (quote == Q_SINGLE)
 		return (ft_strdup(s));
-	return (expand_loop(s, shell));
+	if (quote == Q_DOUBLE && !ms_str_has_dollar(s))
+		return (ft_strdup(s));
+	return (expand_loop(s, quote, shell));
 }

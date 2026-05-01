@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/04 17:52:10 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/04/07 19:18:54 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,15 @@ int	word_fail(t_lex_result *lexer, char *buffer, int err)
 int	word_commit(t_lex_result *lexer, char *buffer, int quote)
 {
 	t_token	*token;
+	int		real_quote;
 
-	token = create_token(TOK_WORD, quote, buffer);
+	if (quote == '"')
+		real_quote = Q_DOUBLE;
+	else if (quote == '\'')
+		real_quote = Q_SINGLE;
+	else
+		real_quote = Q_NONE;
+	token = create_token(TOK_WORD, real_quote, buffer);
 	if (!token)
 		return (word_fail(lexer, buffer, 1));
 	append_token(lexer, token);
@@ -60,6 +67,23 @@ int	word_commit(t_lex_result *lexer, char *buffer, int quote)
 	return (1);
 }
 
-
+void	exit_error(char *command)
+{
+    if (errno == ENOENT)
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(command, 2);
+        ft_putstr_fd(": No such file or directory\n", 2);
+        exit(127);
+    }
+    else if (errno == EACCES)
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(command, 2);
+        ft_putstr_fd(": Permission denied\n", 2);
+        exit(126);
+    }
+    exit(1);
+}
 
 // TODO: add proper error-printing helpers later
