@@ -7,10 +7,14 @@ LIBFT_DIR	= libft
 SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/main/init.c \
               $(SRC_DIR)/parsing/parser.c \
+              $(SRC_DIR)/parsing/parser_init.c \
+              $(SRC_DIR)/parsing/parser_command.c \
+              $(SRC_DIR)/parsing/parser_redirect.c \
               $(SRC_DIR)/parsing/lexer.c \
               $(SRC_DIR)/parsing/quotes.c \
               $(SRC_DIR)/parsing/expansion.c \
               $(SRC_DIR)/execution/executor.c \
+              $(SRC_DIR)/execution/args.c \
               $(SRC_DIR)/execution/pipes.c \
               $(SRC_DIR)/execution/redirects.c \
               $(SRC_DIR)/builtins/cd.c \
