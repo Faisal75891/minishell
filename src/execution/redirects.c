@@ -105,9 +105,9 @@ static void	handle_heredoc(char *delimiter, t_quote_type quote, t_shell *shell)
 
 void	handle_redirects(t_commands *command, t_shell *shell)
 {
-    int		fd;
-    int		i;
-    t_redir	*redir;
+    int		        fd;
+    int		        i;
+    t_redirections	*redir;
 
     if (!command->redirections)
         return ;

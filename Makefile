@@ -13,7 +13,6 @@ SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/execution/executor.c \
               $(SRC_DIR)/execution/pipes.c \
               $(SRC_DIR)/execution/redirects.c \
-              $(SRC_DIR)/execution/new_executor.c \
               $(SRC_DIR)/builtins/cd.c \
               $(SRC_DIR)/builtins/echo.c \
               $(SRC_DIR)/builtins/env.c \
@@ -31,16 +30,27 @@ SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/utils/str_utils.c \
               $(SRC_DIR)/utils/lexer_utils.c \
 
+UNAME_S := $(shell uname -s)
+
 OBJS		= $(SRCS:.c=.o)
 LIBFT		= $(LIBFT_DIR)/libft.a
 
 CC			= cc
 CFLAGS		= -Wall -Wextra -Werror -g
+LDFLAGS     =
+
+ifeq ($(UNAME_S), linux)
+    LDFLAGS += -lreadline
+else ifeq ($(UNAME_S), Darwin)
+    READLINE_PATH = $(shell brew --prefix readline)
+    CFLAGS += -I$(READLINE_PATH)/include
+    LDFLAGS += -L$(READLINE_PATH)/lib -lreadline
+endif
 
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(LDFLAGS) -o $(NAME)
 
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
