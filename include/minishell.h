@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/30 14:34:35 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 00:28:15 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,10 @@ int		run_pipeline(char	*command, t_shell *shell);
 // redirects.c - TODO
 int		wait_all(int *pids, int n);
 void	handle_redirects(t_commands *command, t_shell *shell);
+
+// redirect_utils.c
+int		open_redirect_fd(t_redirections *redir);
+void	apply_redirection(t_redirections *redir, t_shell *shell);
 
 // builtisignal(SIGINT, SIG_DFL);
 int		ms_cd(t_shell *shell, char **args);

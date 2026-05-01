@@ -25,6 +25,7 @@ SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/utils/cleanup.c \
               $(SRC_DIR)/utils/env_utils.c \
               $(SRC_DIR)/utils/error_utils.c \
+              $(SRC_DIR)/utils/redirect_utils.c \
               $(SRC_DIR)/utils/pipe_utils.c \
               $(SRC_DIR)/utils/char_utils.c \
               $(SRC_DIR)/utils/str_utils.c \

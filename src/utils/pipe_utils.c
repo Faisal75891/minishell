@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipe_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/22 08:08:55 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/22 08:08:55 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 00:06:59 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,4 +55,29 @@ void	manage_pipe_fds(int *prev_pipe, int pipe_fd[2], int i, int count)
 		close_if_open(&pipe_fd[1]);
 		*prev_pipe = pipe_fd[0];
 	}
+}
+
+char	**ms_split_pipeline(char *command)
+{
+	char	**commands;
+	char	*trimmed_command;
+	int		i;
+
+	commands = ft_split(command, '|');
+	if (!commands)
+		return (NULL);
+	i = 0;
+	while (commands[i])
+	{
+		trimmed_command = ft_strtrim(commands[i], " \t\n\v\f\r");
+		if (!trimmed_command)
+		{
+			free_split(commands);
+			return (NULL);
+		}
+		free(commands[i]);
+		commands[i] = trimmed_command;
+		i++;
+	}
+	return (commands);
 }

@@ -78,13 +78,15 @@ int	execute_commands(t_parsed_result *parsed, t_shell *shell)
 
 	pids = malloc(sizeof(int) * parsed->command_count);
 	if (!pids)
-		return (1);	i = -1;
+		return (1);
+	i = -1;
 	prev_p = -1;
 	while (++i < parsed->command_count)
 	{
 		if (init_pipe_fd(p_fd, i, parsed->command_count))
 			return (1);
-		pids[i] = spawn_child_process(&parsed->commands[i], shell, p_fd, &prev_p);
+		pids[i] = spawn_child_process(&parsed->commands[i],
+				shell, p_fd, &prev_p);
 		if (pids[i] < 0)
 			return (1);
 		manage_pipe_fds(&prev_p, p_fd, i, parsed->command_count);
