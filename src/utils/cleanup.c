@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cleanup.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
+/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/04/06 21:19:49 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 02:20:30 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,57 +40,49 @@ int	split_len(char **arr)
 	return (len);
 }
 
-// typedef struct s_redirections
-// {
-// 	char			*target;
-// 	t_token_type	type;
-// }	t_redirections;
+static void	free_cmd_argv(t_commands *cmd)
+{
+	int	j;
 
-// typedef struct s_commands
-// {
-// 	char				**argv;
-// 	int					argc;
-// 	t_redirections		*redirections;
-// 	int					redirections_count;
-// 	int					heredoc;
-// }	t_commands;
+	if (!cmd || !cmd->argv)
+		return ;
+	j = 0;
+	while (j < cmd->argc)
+	{
+		free(cmd->argv[j]);
+		j++;
+	}
+	free(cmd->argv);
+	cmd->argv = NULL;
+}
 
-// typedef struct s_parsed_result
-// {
-// 	t_commands	*commands;
-// 	int			command_count;
-// 	int			command_error;
-// }	t_parsed_result;
+static void	free_cmd_redirections(t_commands *cmd)
+{
+	int	k;
+
+	if (!cmd || !cmd->redirections)
+		return ;
+	k = 0;
+	while (k < cmd->redirections_count)
+	{
+		free(cmd->redirections[k].target);
+		k++;
+	}
+	free(cmd->redirections);
+	cmd->redirections = NULL;
+}
 
 void	free_parser(t_parsed_result *parser)
 {
 	int	i;
-	int	j;
-	int	k;
 
 	if (!parser)
 		return ;
 	i = 0;
 	while (i < parser->command_count)
 	{
-		j = 0;
-		k = 0;
-		while (j < parser->commands[i].argc)
-		{
-			if (parser->commands[i].argv[j])
-				free(parser->commands[i].argv[j]);
-			j++;
-		}
-		while (k < parser->commands[i].redirections_count)
-		{
-			if (parser->commands[i].redirections[k].target)
-				free(parser->commands[i].redirections[k].target);
-			k++;
-		}
-		if (parser->commands[i].argv)
-			free(parser->commands[i].argv);
-		if (parser->commands[i].redirections)
-			free(parser->commands[i].redirections);
+		free_cmd_argv(&parser->commands[i]);
+		free_cmd_redirections(&parser->commands[i]);
 		i++;
 	}
 	if (parser->commands)

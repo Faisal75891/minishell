@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   char_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 11:38:58 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 00:32:40 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 02:03:21 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,29 +21,27 @@ int	ms_is_var_char(int c, int first)
 	return (ft_isalnum((unsigned char)c) || c == '_');
 }
 
-int	set_mode(const char	*s, int *i)
+int	set_mode(const char	*s, int *i, int mode)
 {
-	int	mode;
-
 	if (mode == 0 && s[*i] == '\'')
 	{
-		mode = 1;
 		(*i)++;
+		return (1);
 	}
 	if (mode == 1 && s[*i] == '\'')
 	{
-		mode = 0;
 		(*i)++;
+		return (0);
 	}
 	if (mode == 0 && s[*i] == '"')
 	{
-		mode = 2;
 		(*i)++;
+		return (2);
 	}
 	if (mode == 2 && s[*i] == '"')
 	{
-		mode = 0;
 		(*i)++;
+		return (0);
 	}
 	return (mode);
 }

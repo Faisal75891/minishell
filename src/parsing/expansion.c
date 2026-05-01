@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expansion.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
+/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 00:33:19 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 02:03:21 by samamaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ static char	*expand_loop(const char *s, t_quote_type quote, t_shell *shell)
 {
 	int		i;
 	char	*res;
-	char	*to_add;
 	int		mode;
 
 	mode = 0;
@@ -82,7 +81,7 @@ static char	*expand_loop(const char *s, t_quote_type quote, t_shell *shell)
 			res = append_char(res, s, &i, shell);
 		else
 		{
-			mode = set_mode(s, &i);
+			mode = set_mode(s, &i, mode);
 			if (mode != 1)
 				res = append_char(res, s, &i, shell);
 		}
