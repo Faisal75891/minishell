@@ -12,21 +12,18 @@
 
 #include "minishell.h"
 
-// TODO: unset builtin
-// - unset VAR -> remove from environment
-// - handle multiple variables
-
 static void	remove_env_var(t_shell *shell, char *var)
 {
-	int i;
-	int j;
+	int		i;
+	int		j;
 	size_t	len;
 
 	len = ft_strlen(var);
 	i = 0;
 	while (shell->env[i])
 	{
-		if (ft_strncmp(shell->env[i], var, len) == 0 && shell->env[i][len] == '=')
+		if (ft_strncmp(shell->env[i], var, len) == 0
+			&& shell->env[i][len] == '=')
 		{
 			free(shell->env[i]);
 			j = i;
@@ -41,9 +38,9 @@ static void	remove_env_var(t_shell *shell, char *var)
 	}
 }
 
-int ms_unset(t_shell *shell, char **args)
+int	ms_unset(t_shell *shell, char **args)
 {
-	int i;
+	int	i;
 
 	if (!args || !args[1])
 		return (0);

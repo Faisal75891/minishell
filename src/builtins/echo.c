@@ -12,13 +12,9 @@
 
 #include "minishell.h"
 
-// TODO: echo builtin
-// - echo with -n flag (no newline)
-// - handle multiple arguments
-
 static int	is_n_flag(char *arg)
 {
-	int i;
+	int	i;
 
 	if (!arg || arg[0] != '-' || arg[1] != 'n')
 		return (0);
@@ -30,10 +26,10 @@ static int	is_n_flag(char *arg)
 	return (0);
 }
 
-int ms_echo(t_shell *shell, char **args)
+int	ms_echo(t_shell *shell, char **args)
 {
-	int i;
-	int newline;
+	int	i;
+	int	newline;
 
 	(void)shell;
 	newline = 1;

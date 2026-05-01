@@ -12,12 +12,9 @@
 
 #include "minishell.h"
 
-// TODO: env builtin
-// - print all environment variables
-
-int ms_env(t_shell *shell, char **args)
+int	ms_env(t_shell *shell, char **args)
 {
-	int i;
+	int	i;
 
 	(void)args;
 	if (!shell || !shell->env)

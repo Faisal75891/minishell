@@ -5,117 +5,89 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/03/25 13:57:20 by samamaev         ###   ########.fr       */
+/*   Created: 2026/04/01 12:19:20 by fbaras            #+#    #+#             */
+/*   Updated: 2026/04/30 12:19:20 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	execute_builtin(char **args, t_shell *shell)
+static void	exec_child(t_commands *command, t_shell *shell)
 {
-	if (!ft_strncmp(args[0], "cd", 3))
-		return (ms_cd(shell, args));
-	if (!ft_strncmp(args[0], "pwd", 4))
-		return (ms_pwd(shell, args));
-	if (!ft_strncmp(args[0], "echo", 5))
-		return (ms_echo(shell, args));
-	if (!ft_strncmp(args[0], "export", 7))
-		return (ms_export(shell, args));
-	if (!ft_strncmp(args[0], "unset", 6))
-		return (ms_unset(shell, args));
-	if (!ft_strncmp(args[0], "env", 4))
-		return (ms_env(shell, args));
-	if (!ft_strncmp(args[0], "exit", 5))
-		return (ms_exit(shell, args));
-	return (-1);
-}
+	char	*full_command;
 
-static void	handle_child_process(char **arg_list, t_shell *shell)
-{
-	char*cmd_path;
-	char**paths;
-
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-	cmd_path = NULL;
-	if (arg_list[0][0] == '/' || arg_list[0][0] == '.')
-		cmd_path = ft_strdup(arg_list[0]);
-	else if (shell->env)
+	if (command->argv[0][0] == '\0')
+		full_command = ft_strdup(command->argv[0]);
+	else
 	{
-		paths = get_paths(shell->env);
-		if (paths)
-		{
-			cmd_path = get_full_path(arg_list[0], paths);
-			free_split(paths);
-		}
+		full_command = get_full_command(command->argv[0], shell->env);
+		if (!full_command)
+			exit(1);
 	}
-	if (!cmd_path)
-		cmd_path = arg_list[0];
-	execve(cmd_path, arg_list, shell->env);
-	ft_putstr_fd("minishell: ", 2);
-	ft_putstr_fd(arg_list[0], 2);
-	ft_putendl_fd(": command not found", 2);
-	_exit(127);
+	execve(full_command, command->argv, shell->env);
+	free(full_command);
+	exit_error(command->argv[0]);
 }
 
-static int	wait_for_child(pid_t pid)
+void	execute_single_command(t_commands *cmd, t_shell *shell,
+	int pipe_fd[2], int *prev_pipe)
 {
-	int status;
-	int exit_status;
-
-	exit_status = 1;
-	waitpid(pid, &status, 0);
-	if (WIFEXITED(status))
-		exit_status = WEXITSTATUS(status);
-	else if (WIFSIGNALED(status))
-		exit_status = 128 + WTERMSIG(status);
-	return (exit_status);
+	if (*prev_pipe != -1)
+		dup_and_close(*prev_pipe, STDIN_FILENO);
+	if (pipe_fd[1] != -1)
+		dup_and_close(pipe_fd[1], STDOUT_FILENO);
+	close_if_open(&pipe_fd[0]);
+	handle_redirects(cmd, shell);
+	exec_child(cmd, shell);
 }
 
-int execute_command(char **arg_list, t_shell *shell)
+static int	spawn_child_process(t_commands *command, t_shell *shell,
+	int pipe_fd[2], int *prev_pipe)
 {
-	pid_t	pid;
-	int exit_status;
+	int	pid;
 
-	exit_status = execute_builtin(arg_list, shell);
-	if (exit_status != -1)
-		return (exit_status);
 	pid = fork();
 	if (pid == 0)
-		handle_child_process(arg_list, shell);
-	else if (pid > 0)
-		exit_status = wait_for_child(pid);
-	else
 	{
-		ft_putendl_fd("fork failed", 2);
-		exit_status = 1;
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
+		set_new_termios(1);
+		execute_single_command(command, shell, pipe_fd, prev_pipe);
 	}
-	return (exit_status);
+	return (pid);
 }
 
-int handle_command(char *command, t_shell *shell)
+static int	finish_exec(int *pids, int count, int p_fd[2])
 {
-	char**arg_list;
+	int	status;
 
-	if (has_pipe(command))
-		shell->last_status = run_pipeline(command, shell);
-	else
+	ignore_signal();
+	status = wait_all(pids, count);
+	close_if_open(&p_fd[0]);
+	close_if_open(&p_fd[1]);
+	free(pids);
+	return (status);
+}
+
+int	execute_commands(t_parsed_result *parsed, t_shell *shell)
+{
+	int	*pids;
+	int	prev_p;
+	int	p_fd[2];
+	int	i;
+
+	pids = malloc(sizeof(int) * parsed->command_count);
+	if (!pids)
+		return (1);	i = -1;
+	prev_p = -1;
+	while (++i < parsed->command_count)
 	{
-		arg_list = get_args(command, shell);
-		if (!arg_list || !arg_list[0])
-		{
-			if (arg_list)
-				free_split(arg_list);
-			return (0);
-		}
-		shell->last_status = execute_command(arg_list, shell);
-		if (!ft_strncmp(arg_list[0], "exit", 5) && shell->last_status != -1)
-		{
-			free_split(arg_list);
+		if (init_pipe_fd(p_fd, i, parsed->command_count))
 			return (1);
-		}
-		free_split(arg_list);
+		pids[i] = spawn_child_process(&parsed->commands[i], shell, p_fd, &prev_p);
+		if (pids[i] < 0)
+			return (1);
+		manage_pipe_fds(&prev_p, p_fd, i, parsed->command_count);
 	}
-	return (0);
+	return (finish_exec(pids, parsed->command_count, p_fd));
 }

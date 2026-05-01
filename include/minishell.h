@@ -94,6 +94,9 @@ typedef struct s_lex_result
 // pipe_utils
 void	close_if_open(int *fd);
 void	dup_and_close(int fd1, int fd2);
+int	init_pipe_fd(int pipe_fd[2], int i, int count);
+void	manage_pipe_fds(int *prev_pipe, int pipe_fd[2], int i, int count);
+int	spawn_child_process(t_commands *command, t_shell *shell, int pipe_fd[2], int *prev_pipe);
 
 // cleanup.c
 void	free_split(char **arr);
@@ -174,7 +177,7 @@ char	*ms_strappend_free(char *s1, char *s2);
 char	*ms_strappend_char(char *s, char c);
 int		word_fail(t_lex_result *lexer, char *buffer, int err);
 int		word_commit(t_lex_result *lexer, char *buffer, int);
-
+void	exit_error(char *command);
 
 
 int		ms_is_var_char(int c, int first);

@@ -67,6 +67,23 @@ int	word_commit(t_lex_result *lexer, char *buffer, int quote)
 	return (1);
 }
 
-
+void	exit_error(char *command)
+{
+    if (errno == ENOENT)
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(command, 2);
+        ft_putstr_fd(": No such file or directory\n", 2);
+        exit(127);
+    }
+    else if (errno == EACCES)
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(command, 2);
+        ft_putstr_fd(": Permission denied\n", 2);
+        exit(126);
+    }
+    exit(1);
+}
 
 // TODO: add proper error-printing helpers later

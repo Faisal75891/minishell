@@ -12,14 +12,9 @@
 
 #include "minishell.h"
 
-// TODO: exit builtin
-// - exit with no args -> exit with last exit status
-// - exit <n> -> exit with status n
-// - handle numeric argument errors
-
 static int	is_numeric(char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (str[i] == '-' || str[i] == '+')
@@ -47,9 +42,9 @@ static void	handle_exit_error(char *arg, int type)
 		ft_putendl_fd("too many arguments", 2);
 }
 
-int ms_exit(t_shell *shell, char **args)
+int	ms_exit(t_shell *shell, char **args)
 {
-	int status;
+	int	status;
 
 	ft_putendl_fd("exit", 1);
 	if (!args[1])
