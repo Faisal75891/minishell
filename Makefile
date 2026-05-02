@@ -11,7 +11,9 @@ SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/parsing/parser_command.c \
               $(SRC_DIR)/parsing/parser_redirect.c \
               $(SRC_DIR)/parsing/lexer.c \
+              $(SRC_DIR)/parsing/lexer_functions.c \
               $(SRC_DIR)/parsing/quotes.c \
+              $(SRC_DIR)/parsing/quote_utils.c \
               $(SRC_DIR)/parsing/expansion.c \
               $(SRC_DIR)/execution/executor.c \
               $(SRC_DIR)/execution/args.c \
@@ -25,6 +27,7 @@ SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/builtins/unset.c \
               $(SRC_DIR)/builtins/exit.c \
               $(SRC_DIR)/signals/signals.c \
+              $(SRC_DIR)/signals/signal_utils.c \
               $(SRC_DIR)/utils/path_utils.c \
               $(SRC_DIR)/utils/cleanup.c \
               $(SRC_DIR)/utils/env_utils.c \

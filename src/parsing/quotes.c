@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/26 10:24:39 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:24:37 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 23:39:55 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,63 +17,6 @@
 // - handle single quotes (no expansion) ------------DONE
 // - handle double quotes (with expansion) ----------DONE
 // - handle escaped characters ----------------------.(Do we need this?)
-
-t_token	*create_token(t_token_type type, t_quote_type quote, const char *word)
-{
-	t_token	*token;
-
-	token = malloc (sizeof(t_token));
-	if (!token)
-		return (NULL);
-	token->type = type;
-	token->quote = quote;
-	token->word = ft_strdup(word);
-	if (!token->word)
-	{
-		free(token);
-		return (NULL);
-	}
-	token->next = NULL;
-	return (token);
-}
-
-void	append_token(t_lex_result *lexer, t_token *token)
-{
-	if (lexer->count == 0)
-	{
-		lexer->head = token;
-		lexer->tail = token;
-		lexer->head->next = NULL;
-	}
-	else if (lexer->count == 1)
-	{
-		lexer->tail = token;
-		lexer->head->next = lexer->tail;
-	}
-	else
-	{
-		lexer->tail->next = token;
-		lexer->tail = token;
-	}
-	lexer->count++;
-}
-
-static int	is_quote(char c, int quote)
-{
-	if (c == '"' && quote != '\'')
-	{
-		if (quote == '"')
-			return (0);
-		return ('"');
-	}
-	if (c == '\'' && quote != '"')
-	{
-		if (quote == '\'')
-			return (0);
-		return ('\'');
-	}
-	return (quote);
-}
 
 static int	strip_outer_quote(char **buffer, int quote_char)
 {
@@ -95,60 +38,6 @@ static int	strip_outer_quote(char **buffer, int quote_char)
 	return (1);
 }
 
-// returns chars consumed
-int	backslash_in_squote(char **buffer, const char *command, int *i)
-{
-	int	consumed;
-
-	consumed = 0;
-	if (command[*i + 1])
-	{
-		*buffer = ms_strappend_char(*buffer, command[*i + 1]);
-		if (!*buffer)
-			return (-1);
-		consumed = 2;
-	}
-	else
-	{
-		*buffer = ms_strappend_char(*buffer, command[*i]);
-		if (!*buffer)
-			return (-1);
-		consumed = 1;
-	}
-	return (consumed);
-}
-
-// returns chars consumed
-int	backslash_in_dquote(char **buffer, const char *command,
-		int *i, t_quote_status *quotes)
-{
-	int	new_quote;
-
-	new_quote = is_quote(command[*i], quotes->quote);
-	quotes->quote = new_quote;
-	if ((command[*i] == '"' || command[*i] == '\'')
-		&& new_quote != quotes->prev_quote)
-	{
-		if (command[*i] == '"')
-			quotes->is_double = 1;
-		else
-			quotes->is_single = 1;
-	}
-	else
-	{
-		if (quotes->quote == 0)
-			quotes->is_unquoted = 1;
-		else if (quotes->quote == '"')
-			quotes->is_double = 1;
-		else if (quotes->quote == '\'')
-			quotes->is_single = 1;
-	}
-	*buffer = ms_strappend_char(*buffer, command[*i]);
-	if (!*buffer)
-		return (-1);
-	return (1);
-}
-
 int	get_and_strip_final_quote(char **buffer, t_quote_status *quotes,
 		int *final_quote)
 {
@@ -164,28 +53,6 @@ int	get_and_strip_final_quote(char **buffer, t_quote_status *quotes,
 			return (-1);
 	}
 	return (1);
-}
-
-int	handle_quotes(char **buffer, const char *command,
-		int *i, t_quote_status *quotes)
-{
-	int	consumed;
-
-	consumed = 0;
-	if (command[*i] == '\\' && quotes->quote != '\'')
-	{
-		consumed = backslash_in_squote(buffer, command, i);
-		if (consumed == -1)
-			return (-1);
-	}
-	else
-	{
-		quotes->prev_quote = quotes->quote;
-		consumed = backslash_in_dquote(buffer, command, i, quotes);
-		if (consumed == -1)
-			return (-1);
-	}
-	return (consumed);
 }
 
 static int	scan_word_segment(const char *command,

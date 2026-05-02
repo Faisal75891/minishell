@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 11:38:58 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:26:27 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 23:21:41 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,4 +79,17 @@ void	handle_error(t_lex_result *lexer)
 		ft_putstr_fd(lexer->unexpected_token, 2);
 		ft_putendl_fd("'", 2);
 	}
+}
+
+// i didn't know where to put this lol
+int	split_len(char **arr)
+{
+	int	len;
+
+	len = 0;
+	if (!arr)
+		return (0);
+	while (arr[len])
+		len++;
+	return (len);
 }

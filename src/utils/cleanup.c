@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:27:03 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 23:21:30 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,19 +25,6 @@ void	free_split(char **arr)
 		i++;
 	}
 	free(arr);
-}
-
-// i didn't know where to put this lol
-int	split_len(char **arr)
-{
-	int	len;
-
-	len = 0;
-	if (!arr)
-		return (0);
-	while (arr[len])
-		len++;
-	return (len);
 }
 
 static void	free_cmd_argv(t_commands *cmd)

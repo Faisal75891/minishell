@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:27:47 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/02 23:42:37 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define MINISHELL_H
 
 # include <stdio.h>
-# include <signal.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <sys/types.h>
@@ -25,6 +24,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <termios.h>
+# include <signal.h>
 
 // stores the shell
 // and the status of the last command.
@@ -156,6 +156,8 @@ void			add_redirect_in(t_lex_result *lexer);
 
 /* quotes.c */
 int				add_word(const char *command, t_lex_result *lexer, int *i);
+int				handle_quotes(char **buffer, const char *command,
+					int *i, t_quote_status *quotes);
 /* expansion.c */
 char			*expand_variables(const char *s, t_quote_type quote,
 					t_shell *shell);
@@ -195,6 +197,7 @@ void			set_new_termios(int on);
 void			new_signal_handler(void);
 void			reset_signal_handler(void);
 void			ignore_signal(void);
+void			handle_sigint(void);
 
 /* error_utils.c */
 char			*ms_strappend_free(char *s1, char *s2);
