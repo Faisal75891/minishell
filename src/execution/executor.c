@@ -76,6 +76,8 @@ int	execute_commands(t_parsed_result *parsed, t_shell *shell)
 	int	p_fd[2];
 	int	i;
 
+	if (!parsed)
+		return (1);
 	pids = malloc(sizeof(int) * parsed->command_count);
 	if (!pids)
 		return (1);

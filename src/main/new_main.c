@@ -16,7 +16,7 @@ static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
 {
 	char	**args;
 
-	if (parser && parser->commands
+	if (parser != NULL && parser->commands
 		&& parser->commands->argv[0]
 		&& parser->commands->argv
 		&& parser->commands->argv[0][0] != '\0')
@@ -67,7 +67,7 @@ static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 	if (!input || input[0] == '\0')
 	{
 		if (input)
-			free(input);
+			return (free(input), 1);
 		return (0);
 	}
 	tokenize_lexer(input, lexer);
