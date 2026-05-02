@@ -97,14 +97,7 @@ libft/              → custom C library (ft_* functions)
 ## coming soon
 
 - [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap) **– handlers exist, disabled in main for now**
-  - TODO: Weird output in non interactive mode:
-		% echo $? | ./minishell 
-		$ 0
-		minishell: 0: No such file or directory
-		$ %
-		(extra line)
-
-  - TODO: test signals with pipes. DOING RN
+  - TODO: in non-interactive mode don't echo the prompt and the command entered.
 
   - TODO: expand ~
 
@@ -112,7 +105,16 @@ libft/              → custom C library (ft_* functions)
 
   - TODO: ctrl + \ should be handled. And needs to set last_status to 131.
 
-  - TODO: in non-interactive mode don't echo the prompt and the command entered.
-
   - TODO: cd should change pwd in env
+
+  - TODO: echo has mem leak somwhere (maybe).
+
+  - TODO: exit should display "too many arguments" when too many arguments
+  - TODO: exit should return 0 when only alpha chars are entered.
+  - TODO: single quotes shouldn't expand variables.
+  - TODO: if path is not found it should still print file not found.
+  - TODO:  cat > file_cat >> file_ls. cat should write to both files, currently it is only writing to the last one.
+  - TODO: heredoc segfaults. when at the beginning.
+
+  - TODO: check how much readline() leaks to establish a baseline of leaks.
 ---

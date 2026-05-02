@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   args.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samamaev <samamaev@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 00:00:00 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 02:00:42 by samamaev         ###   ########.fr       */
+/*   Updated: 2026/05/03 01:58:07 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ char	*get_full_command(char *command, char **environ)
 	if (ft_strchr(command, '/'))
 		return (ft_strdup(command));
 	paths = get_paths(environ);
-	if (!paths)
-		return (NULL);
 	full_path = get_full_path(command, paths);
 	free_split(paths);
 	if (!full_path)

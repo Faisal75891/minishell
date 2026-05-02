@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/02 23:24:22 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/02 23:25:44 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/03 00:47:39 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	signal_handler(int sig)
 		else if (sig == SIGQUIT)
 			;
 		else
-			g_signal = 0;
+			g_signal = 0; // check later.
 	}
 }
 
