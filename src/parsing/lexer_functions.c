@@ -51,3 +51,16 @@ void	append_token(t_lex_result *lexer, t_token *token)
 	}
 	lexer->count++;
 }
+
+int	is_operator_char(char c)
+{
+	return (c == '|' || c == '<' || c == '>');
+}
+
+int	is_redirect(t_token_type token)
+{
+	return (token == TOK_HEREDOC
+		|| token == TOK_REDIR_APPEND
+		|| token == TOK_REDIR_IN
+		|| token == TOK_REDIR_OUT);
+}

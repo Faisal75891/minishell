@@ -26,6 +26,7 @@ void	handle_sigint(void)
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
+	rl_done = 1;
 }
 
 void	set_new_termios(int on)

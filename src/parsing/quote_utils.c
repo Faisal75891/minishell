@@ -104,3 +104,28 @@ int	handle_quotes(char **buffer, const char *command,
 	}
 	return (consumed);
 }
+
+int	set_mode(const char	*s, int *i, int mode)
+{
+	if (mode == 0 && s[*i] == '\'')
+	{
+		(*i)++;
+		return (1);
+	}
+	if (mode == 1 && s[*i] == '\'')
+	{
+		(*i)++;
+		return (0);
+	}
+	if (mode == 0 && s[*i] == '"')
+	{
+		(*i)++;
+		return (2);
+	}
+	if (mode == 2 && s[*i] == '"')
+	{
+		(*i)++;
+		return (0);
+	}
+	return (mode);
+}

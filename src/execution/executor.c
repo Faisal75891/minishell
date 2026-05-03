@@ -17,12 +17,19 @@ static void	exec_child(t_commands *command, t_shell *shell)
 	char	*full_command;
 
 	if (command->argv[0][0] == '\0')
+	{
 		full_command = ft_strdup(command->argv[0]);
+		if (!full_command)
+		{
+			perror("malloc");
+			exit(1);
+		}
+	}
 	else
 	{
 		full_command = get_full_command(command->argv[0], shell->env);
 		if (!full_command)
-			exit(1);
+			execve(command->argv[0], command->argv, shell->env);
 	}
 	execve(full_command, command->argv, shell->env);
 	free(full_command);

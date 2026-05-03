@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by fbaras, samamaev*
+*This project has been created as part of the 42 curriculum by fbaras, samamaev AND COPILOT*
 
 # minishell 🐚
 
@@ -99,11 +99,17 @@ libft/              → custom C library (ft_* functions)
 - [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap) **– handlers exist, disabled in main for now**
   - TODO: in non-interactive mode don't echo the prompt and the command entered.
 
-  - TODO: expand ~
+  - TODO: expand ~. DONE
 
-  - TODO: ctrl-c should set last status to 130.
+  - TODO: ctrl-c should set last status to 130. DONE
 
-  - TODO: ctrl + \ should be handled. And needs to set last_status to 131.
+  - TODO: ctrl + \ should be handled. And needs to set last_status to 131. DONE
+
+  - TODO: if path is not found it should still print file not found. DONE
+
+  - TODO: single quotes shouldn't expand variables. DONE
+
+  - TODO: heredoc segfaults. when at the beginning. DONE
 
   - TODO: cd should change pwd in env
 
@@ -111,10 +117,9 @@ libft/              → custom C library (ft_* functions)
 
   - TODO: exit should display "too many arguments" when too many arguments
   - TODO: exit should return 0 when only alpha chars are entered.
-  - TODO: single quotes shouldn't expand variables.
-  - TODO: if path is not found it should still print file not found.
+
   - TODO:  cat > file_cat >> file_ls. cat should write to both files, currently it is only writing to the last one.
-  - TODO: heredoc segfaults. when at the beginning.
+
 
   - TODO: check how much readline() leaks to establish a baseline of leaks.
 ---

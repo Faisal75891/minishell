@@ -53,7 +53,8 @@ char	*get_full_command(char *command, char **environ)
 		return (ft_strdup(command));
 	paths = get_paths(environ);
 	full_path = get_full_path(command, paths);
-	free_split(paths);
+	if (paths)
+		free_split(paths);
 	if (!full_path)
 		return (ft_strdup(command));
 	return (full_path);

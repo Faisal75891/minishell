@@ -14,6 +14,11 @@
 
 static volatile sig_atomic_t	g_signal;
 
+// I have to define this on my machine
+#ifndef SIGQUIT
+# define SIGQUIT 3
+# endif
+
 void	signal_handler(int sig)
 {
 	if (isatty(STDIN_FILENO) && isatty(STDERR_FILENO))
@@ -24,9 +29,9 @@ void	signal_handler(int sig)
 			handle_sigint();
 		}
 		else if (sig == SIGQUIT)
-			;
+			g_signal = SIGQUIT;
 		else
-			g_signal = 0; // check later.
+			g_signal = sig;
 	}
 }
 

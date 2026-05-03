@@ -50,7 +50,10 @@ int	get_and_strip_final_quote(char **buffer, t_quote_status *quotes,
 	if (*final_quote == '"' || *final_quote == '\'')
 	{
 		if (!strip_outer_quote(buffer, *final_quote))
-			return (-1);
+		{
+			ft_putstr_fd("Error: Couldn't strip quote\n", 2);
+			return (0);
+		}
 	}
 	return (1);
 }
@@ -73,7 +76,8 @@ static int	scan_word_segment(const char *command,
 			return (-1);
 		(*i) += consumed;
 	}
-	*final_quote = get_and_strip_final_quote(buffer, &quotes, final_quote);
+	if (!get_and_strip_final_quote(buffer, &quotes, final_quote))
+		return (-1);
 	if (*final_quote == -1)
 		return (-1);
 	if (quotes.quote != 0)

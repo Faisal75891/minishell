@@ -12,33 +12,6 @@
 
 #include "minishell.h"
 
-char	*ms_strappend_free(char *s1, char *s2)
-{
-	char	*tmp;
-
-	if (!s2)
-	{
-		free(s1);
-		return (NULL);
-	}
-	tmp = ft_strjoin(s1, s2);
-	free(s1);
-	free(s2);
-	return (tmp);
-}
-
-char	*ms_strappend_char(char *s, char c)
-{
-	char	buf[2];
-	char	*tmp;
-
-	buf[0] = c;
-	buf[1] = '\0';
-	tmp = ft_strjoin(s, buf);
-	free(s);
-	return (tmp);
-}
-
 int	word_fail(t_lex_result *lexer, char *buffer, int err)
 {
 	if (buffer)
@@ -85,4 +58,20 @@ void	exit_error(char *command)
 	exit(1);
 }
 
-// TODO: add proper error-printing helpers later
+void	handle_error(t_lex_result *lexer)
+{
+	if (!lexer || lexer->error == 0)
+		return ;
+	if (lexer->error == 2)
+		ft_putendl_fd("minishell: syntax error: unclosed quote", 2);
+	else if (lexer->error == 1)
+		ft_putendl_fd("minishell: allocation error", 2);
+	else if (lexer->error == 3)
+	{
+		if (!lexer->unexpected_token)
+			lexer->unexpected_token = "newline";
+		ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+		ft_putstr_fd(lexer->unexpected_token, 2);
+		ft_putendl_fd("'", 2);
+	}
+}

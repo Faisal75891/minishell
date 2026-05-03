@@ -212,7 +212,6 @@ int				set_mode(const char *s, int *i, int mode);
 char			*append_char(char *res, const char *s, int *i, t_shell *shell);
 char			*handle_dollar_seq(const char *s, int *i, t_shell *shell);
 
-int				ft_isspace(char c);
 int				is_operator_char(char c);
 int				is_redirect(t_token_type token);
 int				ms_str_has_dollar(const char *s);

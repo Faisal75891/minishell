@@ -45,6 +45,7 @@ static void	handle_heredoc(char *delimiter, t_quote_type quote, t_shell *shell)
 {
 	int	here_doc[2];
 
+	printf("reached here\n");
 	signal(SIGQUIT, SIG_IGN);
 	set_new_termios(0);
 	if (pipe(here_doc) == -1)

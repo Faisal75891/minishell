@@ -28,20 +28,29 @@ int	ms_str_has_dollar(const char *s)
 	return (0);
 }
 
-int	ft_isspace(char c)
+char	*ms_strappend_free(char *s1, char *s2)
 {
-	return (c == ' ' || (c >= 9 && c <= 13));
+	char	*tmp;
+
+	if (!s2)
+	{
+		free(s1);
+		return (NULL);
+	}
+	tmp = ft_strjoin(s1, s2);
+	free(s1);
+	free(s2);
+	return (tmp);
 }
 
-int	is_operator_char(char c)
+char	*ms_strappend_char(char *s, char c)
 {
-	return (c == '|' || c == '<' || c == '>');
-}
+	char	buf[2];
+	char	*tmp;
 
-int	is_redirect(t_token_type token)
-{
-	return (token == TOK_HEREDOC
-		|| token == TOK_REDIR_APPEND
-		|| token == TOK_REDIR_IN
-		|| token == TOK_REDIR_OUT);
+	buf[0] = c;
+	buf[1] = '\0';
+	tmp = ft_strjoin(s, buf);
+	free(s);
+	return (tmp);
 }
