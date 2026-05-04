@@ -149,3 +149,24 @@ int	main(int argc, char **argv, char **envp)
 	clear_history();
 	return (0);
 }
+
+// int	main(void)
+// {
+
+// 	while (1)
+// 	{
+// 		char	*c = readline("$: ");
+// 		if (!c || c[0] == '\0')
+// 		{
+// 			if (c)
+// 			{
+// 				free(c);
+// 				continue ;
+// 			}
+// 			return (0);
+// 		}
+// 		add_history(c);
+// 		free(c);
+// 	}
+// 	clear_history();
+// }

@@ -94,9 +94,7 @@ libft/              → custom C library (ft_* functions)
 - I added free_parser() function.
 - I fixed a minor bug in copy_env().
 
-## coming soon
-
-- [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap) **– handlers exist, disabled in main for now**
+# TODOs
   - TODO: in non-interactive mode don't echo the prompt and the command entered.
 
   - TODO: expand ~. DONE
@@ -111,15 +109,12 @@ libft/              → custom C library (ft_* functions)
 
   - TODO: heredoc segfaults. when at the beginning. DONE
 
-  - TODO: cd should change pwd in env
 
-  - TODO: echo has mem leak somwhere (maybe).
+  - TODO: exit should display "too many arguments" when too many arguments. (This depends on the shell) \
+      exit should return 0 when only alpha chars are entered. (This depends on the shell)
+    - What We have can be considered correct.
 
-  - TODO: exit should display "too many arguments" when too many arguments
-  - TODO: exit should return 0 when only alpha chars are entered.
-
-  - TODO:  cat > file_cat >> file_ls. cat should write to both files, currently it is only writing to the last one.
-
-
-  - TODO: check how much readline() leaks to establish a baseline of leaks.
+  ## Last two to do.
+    - TODO: cd should change pwd in env
+    - TODO:  cat > file_cat >> file_ls. cat should write to both files, currently it is only writing to the last one.
 ---
