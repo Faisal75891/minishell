@@ -32,5 +32,75 @@ char	*get_env_value(const char *name, char **env)
 	return (NULL);
 }
 
-// TODO: set environment variable
-// TODO: copy environment
+static char	*ms_env_make_entry(const char *name, const char *value)
+{
+	char	*entry;
+
+	entry = ft_strjoin(name, "=");
+	if (!entry)
+		return (NULL);
+	if (value)
+		entry = ms_strappend_free(entry, (char *)value);
+	return (entry);
+}
+
+static int	ms_env_update_existing(t_shell *shell, const char *name,
+	int keylen, char *entry)
+{
+	int	i;
+
+	i = 0;
+	while (shell->env && shell->env[i])
+	{
+		if (!ft_strncmp(shell->env[i], name, keylen)
+			&& shell->env[i][keylen] == '=')
+		{
+			free(shell->env[i]);
+			shell->env[i] = entry;
+			return (0);
+		}
+		i++;
+	}
+	return (1);
+}
+
+static int	ms_env_append_new(t_shell *shell, char *entry)
+{
+	int		count;
+	char	**new_env;
+
+	count = 0;
+	while (shell->env && shell->env[count])
+		count++;
+	new_env = malloc(sizeof(char *) * (count + 2));
+	if (!new_env)
+		return (free(entry), 1);
+	count = -1;
+	while (shell->env && shell->env[++count])
+		new_env[count] = shell->env[count];
+	new_env[count] = entry;
+	new_env[count + 1] = NULL;
+	free(shell->env);
+	shell->env = new_env;
+	return (0);
+}
+
+int	set_env_value(t_shell *shell, const char *name, const char *value)
+{
+	int		keylen;
+	char	*entry;
+
+	if (!shell || !name || !*name)
+		return (1);
+	keylen = 0;
+	while (name[keylen] && name[keylen] != '=')
+		keylen++;
+	if (keylen <= 0)
+		return (1);
+	entry = ms_env_make_entry(name, value);
+	if (!entry)
+		return (1);
+	if (!ms_env_update_existing(shell, name, keylen, entry))
+		return (0);
+	return (ms_env_append_new(shell, entry));
+}

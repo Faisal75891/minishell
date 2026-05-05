@@ -94,27 +94,26 @@ libft/              → custom C library (ft_* functions)
 - I added free_parser() function.
 - I fixed a minor bug in copy_env().
 
-# TODOs
+## coming soon
+
+- [ ] signals (Ctrl+C, Ctrl+D, Ctrl+\ no cap) **– handlers exist, disabled in main for now**
   - TODO: in non-interactive mode don't echo the prompt and the command entered.
 
-  - TODO: expand ~. DONE
+  - TODO: cd should change pwd in env. DONE
 
-  - TODO: ctrl-c should set last status to 130. DONE
+  - TODO: echo has mem leak somwhere (maybe).
 
-  - TODO: ctrl + \ should be handled. And needs to set last_status to 131. DONE
+  - TODO: exit should display "too many arguments" when too many arguments. DONE
+  - TODO: exit should return 0 when only alpha chars are entered. DONE
 
-  - TODO: if path is not found it should still print file not found. DONE
-
-  - TODO: single quotes shouldn't expand variables. DONE
-
-  - TODO: heredoc segfaults. when at the beginning. DONE
+  - TODO:  cat > file_cat >> file_ls. cat should write to both files, currently it is only writing to the last one.
 
 
-  - TODO: exit should display "too many arguments" when too many arguments. (This depends on the shell) \
-      exit should return 0 when only alpha chars are entered. (This depends on the shell)
-    - What We have can be considered correct.
-
-  ## Last two to do.
-    - TODO: cd should change pwd in env
-    - TODO:  cat > file_cat >> file_ls. cat should write to both files, currently it is only writing to the last one.
+  - TODO: check how much readline() leaks to establish a baseline of leaks.
 ---
+## The fixes i made:
+- Updated `cd` to refresh `PWD`/`OLDPWD` in `shell->env` after a successful directory change.
+- Improved `exit` handling:
+  - prints `too many arguments` without exiting when extra args are provided
+  - exits with status `0` when the argument is alphabetic-only (project-specific rule)
+- Fixed redirection so multiple output redirects like `cmd > a >> b` write to *both* files instead of only the last one.

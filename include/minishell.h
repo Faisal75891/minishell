@@ -120,6 +120,8 @@ char			*get_full_path(char *command, char **paths);
 
 /* env_utils.c */
 char			*get_env_value(const char *name, char **env);
+int				set_env_value(t_shell *shell, const char *name, const char *value);
+
 
 /* parser.c */
 t_parsed_result	*parser(t_lex_result *lexer, t_shell *shell);

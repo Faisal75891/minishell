@@ -65,6 +65,5 @@ t_parsed_result	*parser(t_lex_result *lexer, t_shell *shell)
 		free_parser(parsed);
 		return (NULL);
 	}
-
 	return (parsed);
 }

@@ -15,7 +15,7 @@
 static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
 {
 	char	**args;
-	
+
 	if (parser != NULL && parser->commands
 		&& parser->commands->argv
 		&& parser->commands->argv[0]
@@ -57,7 +57,7 @@ t_shell	*init_shell(char **envp)
 	return (shell);
 }
 
-int handle_empty_signal(char *input, t_shell *shell, int status)
+int	handle_empty_signal(char *input, t_shell *shell, int status)
 {
 	if (status == SIGINT)
 	{
@@ -149,24 +149,3 @@ int	main(int argc, char **argv, char **envp)
 	clear_history();
 	return (0);
 }
-
-// int	main(void)
-// {
-
-// 	while (1)
-// 	{
-// 		char	*c = readline("$: ");
-// 		if (!c || c[0] == '\0')
-// 		{
-// 			if (c)
-// 			{
-// 				free(c);
-// 				continue ;
-// 			}
-// 			return (0);
-// 		}
-// 		add_history(c);
-// 		free(c);
-// 	}
-// 	clear_history();
-// }

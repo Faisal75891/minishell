@@ -41,6 +41,20 @@ static char	*get_cd_path(t_shell *shell, char **args, char *oldpwd)
 	return (path);
 }
 
+static void	update_pwd_vars(t_shell *shell, const char *oldpwd)
+{
+	char	*newpwd;
+
+	newpwd = getcwd(NULL, 0);
+	if (oldpwd)
+		set_env_value(shell, "OLDPWD", oldpwd);
+	if (newpwd)
+	{
+		set_env_value(shell, "PWD", newpwd);
+		free(newpwd);
+	}
+}
+
 int	ms_cd(t_shell *shell, char **args)
 {
 	char	*path;
@@ -60,6 +74,7 @@ int	ms_cd(t_shell *shell, char **args)
 		ft_putendl_fd(": No such file or directory", 2);
 		return (1);
 	}
+	update_pwd_vars(shell, oldpwd);
 	free(oldpwd);
 	return (0);
 }

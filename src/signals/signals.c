@@ -47,11 +47,9 @@ void	new_signal_handler(void)
 	struct sigaction	sa;
 	struct sigaction	sa2;
 
-	ft_memset(&sa, 0, sizeof(sa));
-	ft_memset(&sa2, 0, sizeof(sa2));
-	sigemptyset(&sa.sa_mask);
-	sigemptyset(&sa2.sa_mask);
+	ft_memset(&sa, 0, sizeof(sa2));
 	sa2.sa_handler = SIG_IGN;
+	ft_memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = &signal_handler;
 	sa.sa_flags = SA_RESTART;
 	sigaction(SIGINT, &sa, NULL);
