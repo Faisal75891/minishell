@@ -213,6 +213,7 @@ int				ms_is_var_char(int c, int first);
 int				set_mode(const char *s, int *i, int mode);
 char			*append_char(char *res, const char *s, int *i, t_shell *shell);
 char			*handle_dollar_seq(const char *s, int *i, t_shell *shell);
+char			*handle_tilde(const char *s, int *i, t_shell *shell);
 
 int				is_operator_char(char c);
 int				is_redirect(t_token_type token);

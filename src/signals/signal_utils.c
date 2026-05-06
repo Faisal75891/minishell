@@ -17,7 +17,7 @@ static volatile sig_atomic_t	g_signal;
 // I have to define this on my machine
 #ifndef SIGQUIT
 # define SIGQUIT 3
-# endif
+#endif
 
 void	signal_handler(int sig)
 {
@@ -52,6 +52,7 @@ int	get_last_signal(void)
 	return ((int)g_signal);
 }
 
+// maybe i should call this reset_last_signal() and set the signal to 0
 void	set_last_signal(int sig)
 {
 	g_signal = sig;

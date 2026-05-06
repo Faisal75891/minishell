@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-// #include "minishell.h"
-#include "../../include/minishell.h"
+#include "minishell.h"
 
 // first != 0 -> first char of variable name, else subsequent char
 int	ms_is_var_char(int c, int first)
@@ -35,28 +34,6 @@ char	*handle_tilde(const char *s, int *i, t_shell *shell)
 	else
 		return (ft_strdup("~"));
 	return (home);
-}
-
-char	*append_char(char *res, const char *s, int *i, t_shell *shell)
-{
-	char	*to_add;
-
-	if (s[*i] == '$')
-	{
-		to_add = handle_dollar_seq(s, i, shell);
-		res = ms_strappend_free(res, to_add);
-	}
-	else if (s[*i] == '~')
-	{
-		to_add = handle_tilde(s, i, shell);
-		res = ms_strappend_free(res, to_add);
-	}
-	else
-	{
-		res = ms_strappend_char(res, s[*i]);
-		(*i)++;
-	}
-	return (res);
 }
 
 // i didn't know where to put this lol

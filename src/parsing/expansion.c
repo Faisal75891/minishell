@@ -10,57 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-// #include "minishell.h"
-#include "../../include/minishell.h"
+#include "minishell.h"
 
-static char	*handle_special_vars(const char *s, int *i, t_shell *shell)
+static char	*expand_step(const char *s, int *i, char *res, t_shell *shell)
 {
-	if (s[*i] == '?')
+	static int	mode;
+
+	mode = set_mode(s, i, mode);
+	if (mode == 1)
 	{
-		(*i)++;
-		return (ft_itoa(shell->last_status));
-	}
-	if (s[*i] == '$')
-	{
-		(*i)++;
-		return (ft_itoa((int)getpid()));
-	}
-	return (NULL);
-}
-
-static char	*handle_named_var(const char *s, int *i, t_shell *shell)
-{
-	int		start;
-	char	*name;
-	char	*value;
-
-	if (!ms_is_var_char((unsigned char)s[*i], 1))
-		return (NULL);
-	start = *i;
-	while (s[*i] && ms_is_var_char((unsigned char)s[*i], 0))
-		(*i)++;
-	name = ft_substr(s, start, *i - start);
-	if (!name)
-		return (NULL);
-	value = get_env_value(name, shell->env);
-	free(name);
-	if (value)
-		return (ft_strdup(value));
-	return (ft_strdup(""));
-}
-
-char	*handle_dollar_seq(const char *s, int *i, t_shell *shell)
-{
-	char	*res;
-
-	(*i)++;
-	res = handle_special_vars(s, i, shell);
-	if (res)
+		if (s[*i] && s[*i] != '\'')
+		{
+			res = ms_strappend_char(res, s[*i]);
+			(*i)++;
+		}
 		return (res);
-	res = handle_named_var(s, i, shell);
-	if (res)
-		return (res);
-	return (ft_substr(s, *i - 1, 2));
+	}
+	return (append_char(res, s, i, shell));
 }
 
 // I will try adding the quote state from the parser
@@ -78,13 +44,13 @@ static char	*expand_loop(const char *s, t_quote_type quote, t_shell *shell)
 	while (s[i])
 	{
 		if (quote == Q_DOUBLE)
-			res = append_char(res, s, &i, shell);
-		else
 		{
-			mode = set_mode(s, &i, mode);
-			if (mode != 1)
-				res = append_char(res, s, &i, shell);
+			res = append_char(res, s, &i, shell);
+			if (!res)
+				return (NULL);
+			continue ;
 		}
+		res = expand_step(s, &i, res, shell);
 		if (!res)
 			return (NULL);
 	}

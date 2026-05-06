@@ -35,12 +35,17 @@ char	*get_env_value(const char *name, char **env)
 static char	*ms_env_make_entry(const char *name, const char *value)
 {
 	char	*entry;
+	char	*tmp;
 
 	entry = ft_strjoin(name, "=");
 	if (!entry)
 		return (NULL);
 	if (value)
-		entry = ms_strappend_free(entry, (char *)value);
+	{
+		tmp = ft_strjoin(entry, value);
+		free(entry);
+		entry = tmp;
+	}
 	return (entry);
 }
 

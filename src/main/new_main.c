@@ -81,26 +81,23 @@ static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 	int					builtins;
 	int					status;
 
-	status = get_last_signal();
 	input = readline("$ ");
+	status = get_last_signal();
+	if (handle_empty_signal(input, shell, status))
+		return (1);
 	if (!input || input[0] == '\0')
 	{
 		if (input)
 			return (free(input), 1);
 		return (0);
 	}
-	status = get_last_signal();
-	if (handle_empty_signal(input, shell, status))
-		return (1);
 	tokenize_lexer(input, lexer);
 	p = parser(lexer, shell);
 	builtins = execute_builtin(p, shell);
 	if (builtins != -1)
 		shell->last_status = builtins;
 	else
-	{
 		shell->last_status = execute_commands(p, shell);
-	}
 	add_history(input);
 	clear_lexer(lexer);
 	free_parser(p);

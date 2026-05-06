@@ -37,6 +37,7 @@ SRCS		= $(SRC_DIR)/main/new_main.c \
               $(SRC_DIR)/utils/char_utils.c \
               $(SRC_DIR)/utils/str_utils.c \
               $(SRC_DIR)/utils/lexer_utils.c \
+              $(SRC_DIR)/utils/expansion_utils.c \
 
 UNAME_S := $(shell uname -s)
 
@@ -44,7 +45,7 @@ OBJS		= $(SRCS:.c=.o)
 LIBFT		= $(LIBFT_DIR)/libft.a
 
 CC			= cc
-CFLAGS		= -Wall -Wextra -Werror -g
+CFLAGS		= -g #-Wall -Wextra -Werror -g
 LDFLAGS     =
 
 ifeq ($(UNAME_S), Linux)
