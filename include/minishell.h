@@ -102,6 +102,10 @@ typedef struct s_lex_result
 	//char	*error_msg;
 }	t_lex_result;
 
+t_shell			*init_shell(char **envp);
+int		init_lexer_and_shell(t_lex_result **lexer,
+					t_shell **shell, char **envp);
+
 /* pipe_utils */
 void			close_if_open(int *fd);
 void			dup_and_close(int fd1, int fd2);

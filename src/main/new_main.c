@@ -38,23 +38,6 @@ int	execute_builtin(t_commands *command, t_shell *shell)
 	return (-1);
 }
 
-t_shell	*init_shell(char **envp)
-{
-	t_shell	*shell;
-
-	shell = malloc (sizeof(t_shell));
-	if (!shell)
-		return (NULL);
-	shell->env = copy_env(envp);
-	if (!shell->env)
-	{
-		free(shell);
-		return (NULL);
-	}
-	shell->last_status = 0;
-	return (shell);
-}
-
 int	handle_empty_signal(char *input, t_shell *shell, int status)
 {
 	if (status == SIGINT)
@@ -72,11 +55,22 @@ int	handle_empty_signal(char *input, t_shell *shell, int status)
 	return (1);
 }
 
+static int	execute_command_or_builtin(t_parsed_result *p, t_shell *shell)
+{
+	int	builtins;
+
+	if (!p)
+		return (2);
+	builtins = execute_builtin(p->commands, shell);
+	if (builtins != -1)
+		return (builtins);
+	return (execute_commands(p, shell));
+}
+
 static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 {
 	t_parsed_result		*p;
 	char				*input;
-	int					builtins;
 	int					status;
 
 	input = readline("$ ");
@@ -91,31 +85,11 @@ static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 	}
 	tokenize_lexer(input, lexer);
 	p = parser(lexer, shell);
-	builtins = execute_builtin(p->commands, shell);
-	if (builtins != -1)
-		shell->last_status = builtins;
-	else
-		shell->last_status = execute_commands(p, shell);
+	shell->last_status = execute_command_or_builtin(p, shell);
 	add_history(input);
 	clear_lexer(lexer);
 	free_parser(p);
 	free(input);
-	return (1);
-}
-
-static int	init_lexer_and_shell(t_lex_result **lexer,
-	t_shell **shell, char **envp)
-{
-	*shell = init_shell(envp);
-	if (!(*shell))
-		return (0);
-	*lexer = init_lexer();
-	if (!(*lexer))
-	{
-		free_split((*shell)->env);
-		free(*shell);
-		return (0);
-	}
 	return (1);
 }
 
