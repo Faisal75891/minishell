@@ -25,7 +25,7 @@ int	ms_pwd(t_shell *shell, char **args)
 	}
 	else
 	{
-		ft_putendl_fd("minishell: pwd: error retrieving current directory", 2);
+		ft_putendl_fd("", 2);
 		return (1);
 	}
 }

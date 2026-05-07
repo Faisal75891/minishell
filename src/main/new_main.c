@@ -27,8 +27,6 @@ int	execute_builtin(t_commands *command, t_shell *shell)
 		return (ms_cd(shell, args));
 	if (!ft_strncmp(args[0], "pwd", 4))
 		return (ms_pwd(shell, args));
-	if (!ft_strncmp(args[0], "echo", 5))
-		return (ms_echo(shell, args));
 	if (!ft_strncmp(args[0], "export", 7))
 		return (ms_export(shell, args));
 	if (!ft_strncmp(args[0], "unset", 6))
@@ -93,7 +91,11 @@ static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 	}
 	tokenize_lexer(input, lexer);
 	p = parser(lexer, shell);
-	shell->last_status = execute_commands(p, shell);
+	builtins = execute_builtin(p->commands, shell);
+	if (builtins != -1)
+		shell->last_status = builtins;
+	else
+		shell->last_status = execute_commands(p, shell);
 	add_history(input);
 	clear_lexer(lexer);
 	free_parser(p);
