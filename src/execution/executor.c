@@ -15,7 +15,11 @@
 static void	exec_child(t_commands *command, t_shell *shell)
 {
 	char	*full_command;
+	int		builtins;
 
+	builtins = execute_builtin(command, shell);
+	if (builtins != -1)
+		exit(builtins);
 	if (command->argv[0][0] == '\0')
 	{
 		full_command = ft_strdup(command->argv[0]);

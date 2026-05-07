@@ -120,8 +120,8 @@ char			*get_full_path(char *command, char **paths);
 
 /* env_utils.c */
 char			*get_env_value(const char *name, char **env);
-int				set_env_value(t_shell *shell, const char *name, const char *value);
-
+int				set_env_value(t_shell *shell, const char *name,
+					const char *value);
 
 /* parser.c */
 t_parsed_result	*parser(t_lex_result *lexer, t_shell *shell);
@@ -167,6 +167,7 @@ char			*expand_variables(const char *s, t_quote_type quote,
 /* NEW_EXECUTOR */
 int				execute_commands(t_parsed_result *parsed_result,
 					t_shell *shell);
+int				execute_builtin(t_commands *command, t_shell *shell);
 
 /* pipes.c */
 int				run_pipeline(char *command, t_shell *shell);

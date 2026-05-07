@@ -12,15 +12,15 @@
 
 #include "minishell.h"
 
-static int	execute_builtin(t_parsed_result *parser, t_shell *shell)
+int	execute_builtin(t_commands *command, t_shell *shell)
 {
 	char	**args;
 
-	if (parser != NULL && parser->commands
-		&& parser->commands->argv
-		&& parser->commands->argv[0]
-		&& parser->commands->argv[0][0] != '\0')
-		args = parser->commands->argv;
+	if (command
+		&& command->argv
+		&& command->argv[0]
+		&& command->argv[0][0] != '\0')
+		args = command->argv;
 	else
 		return (-1);
 	if (!ft_strncmp(args[0], "cd", 3))
@@ -93,11 +93,7 @@ static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 	}
 	tokenize_lexer(input, lexer);
 	p = parser(lexer, shell);
-	builtins = execute_builtin(p, shell);
-	if (builtins != -1)
-		shell->last_status = builtins;
-	else
-		shell->last_status = execute_commands(p, shell);
+	shell->last_status = execute_commands(p, shell);
 	add_history(input);
 	clear_lexer(lexer);
 	free_parser(p);

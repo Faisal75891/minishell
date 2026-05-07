@@ -30,20 +30,6 @@ include/            → minishell.h gang
 libft/              → custom C library (ft_* functions)
 ```
 
-### bugs squashed:
-- ✅ memory leaks in `read_command()` 
-- ✅ `fork()` with no error handling
-- ✅ main loop, now using `t_shell` (env + last_status)
-- ✅ wired builtins to the executor so they actually run instead of getting eaten by `execve`
-- ✅ fixed `PATH` resolution so `execve` stops malding and actually runs external commands like `ls`
-
-### big refactor:
-- reorganized into clean folder structure (src/, include/, libft/)
-- split code into modules (parsing, execution, builtins, utils)
-- added env/utils helpers (`env_utils`, `path_utils`, `char_utils`, `str_utils`, `error_utils`)
-- wired `$VAR`, `$?`, `$$` expansion into the arg parser
-- hooked up all builtins (`cd`, `pwd`, `echo`, `env`, `export`, `unset`, `exit`) natively inside the main shell process
-
 ### what actually works:
 - basic main loop with `readline("$ ")`
 - `t_shell` with:
@@ -67,7 +53,7 @@ libft/              → custom C library (ft_* functions)
   - Creates a linked list of command
   - tokenizes input into tokens or words
   - Each node has the type of token and the type of quote Which makes it easier to do variable expansions.
-- Parser *(NEW)*:
+- Parser:
   - Parses the values inside the lexer.
   - It handles syntax errors in the command.
   - Commands are split into smaller parts.
@@ -87,12 +73,3 @@ libft/              → custom C library (ft_* functions)
 - New_main :
   - Inside it is a todo list of all the shortcomings of the program.
   - It uses new_executor and new parser.
-
-# What i Did:
-  -
-
-## TODOs
-  - Builtin commands skip redirections, piping. everything really.
-  - Running echo "a" > file.txt doesn't redirect or create a file, it just redirects.
-  - Running echo "a b c" | any command. Doesn't execute the other command.
-  - This is because in the main function we handle builtins alone and skip command building. typeshit.
