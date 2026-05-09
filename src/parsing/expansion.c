@@ -17,6 +17,8 @@ static char	*expand_step(const char *s, int *i, char *res, t_shell *shell)
 	static int	mode;
 
 	mode = set_mode(s, i, mode);
+	if (s[*i] == '\0')
+		return (res);
 	if (mode == 1)
 	{
 		if (s[*i] && s[*i] != '\'')

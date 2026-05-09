@@ -26,14 +26,6 @@
 # include <termios.h>
 # include <signal.h>
 
-// stores the shell
-// and the status of the last command.
-typedef struct s_shell
-{
-	char	**env;
-	int		last_status;
-}	t_shell;
-
 // maybe make this an enum
 typedef struct s_quote_status
 {
@@ -102,8 +94,21 @@ typedef struct s_lex_result
 	//char	*error_msg;
 }	t_lex_result;
 
+// stores the shell
+// and the status of the last command.
+typedef struct s_shell
+{
+	t_lex_result	*lexer;
+	t_parsed_result	*parser;
+	char			**env;
+	int				last_status;
+	struct termios	t_old;
+}	t_shell;
+
+void			cleanup_shell(t_shell *shell);
+
 t_shell			*init_shell(char **envp);
-int		init_lexer_and_shell(t_lex_result **lexer,
+int				init_lexer_and_shell(t_lex_result **lexer,
 					t_shell **shell, char **envp);
 
 /* pipe_utils */
@@ -169,9 +174,8 @@ char			*expand_variables(const char *s, t_quote_type quote,
 					t_shell *shell);
 
 /* NEW_EXECUTOR */
-int				execute_commands(t_parsed_result *parsed_result,
-					t_shell *shell);
-int				execute_builtin(t_commands *command, t_shell *shell);
+int				execute_commands(t_shell *shell);
+int				execute_builtin(t_shell *shell);
 
 /* pipes.c */
 int				run_pipeline(char *command, t_shell *shell);
@@ -205,6 +209,7 @@ void			new_signal_handler(void);
 void			reset_signal_handler(void);
 void			ignore_signal(void);
 void			handle_sigint(void);
+int			handle_empty_signal(char *input, t_shell *shell, int status);
 
 /* error_utils.c */
 char			*ms_strappend_free(char *s1, char *s2);

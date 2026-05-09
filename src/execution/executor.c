@@ -18,15 +18,16 @@ static void	exec_child(t_commands *command, t_shell *shell)
 	int		builtins;
 
 	if (!ft_strncmp(command->argv[0], "echo", 5))
-		exit (ms_echo(shell, command->argv));
+	{
+		builtins = ms_echo(shell, command->argv);
+		cleanup_shell(shell);
+		exit(builtins);
+	}
 	if (command->argv[0][0] == '\0')
 	{
 		full_command = ft_strdup(command->argv[0]);
 		if (!full_command)
-		{
-			perror("malloc");
 			exit(1);
-		}
 	}
 	else
 	{
@@ -79,29 +80,38 @@ static int	finish_exec(int *pids, int count, int p_fd[2])
 	return (status);
 }
 
-int	execute_commands(t_parsed_result *parsed, t_shell *shell)
+static int	exec_fail(int *pids, int *prev_p, int p_fd[2])
+{
+	close_if_open(prev_p);
+	close_if_open(&p_fd[0]);
+	close_if_open(&p_fd[1]);
+	free(pids);
+	return (1);
+}
+
+int	execute_commands(t_shell *shell)
 {
 	int	*pids;
 	int	prev_p;
 	int	p_fd[2];
 	int	i;
 
-	if (!parsed)
+	if (!shell->parser)
 		return (1);
-	pids = malloc(sizeof(int) * parsed->command_count);
+	pids = malloc(sizeof(int) * shell->parser->command_count);
 	if (!pids)
 		return (1);
 	i = -1;
 	prev_p = -1;
-	while (++i < parsed->command_count)
+	while (++i < shell->parser->command_count)
 	{
-		if (init_pipe_fd(p_fd, i, parsed->command_count))
-			return (1);
-		pids[i] = spawn_child_process(&parsed->commands[i],
+		if (init_pipe_fd(p_fd, i, shell->parser->command_count))
+			return (exec_fail(pids, &prev_p, p_fd));
+		pids[i] = spawn_child_process(&shell->parser->commands[i],
 				shell, p_fd, &prev_p);
 		if (pids[i] < 0)
-			return (1);
-		manage_pipe_fds(&prev_p, p_fd, i, parsed->command_count);
+			return (exec_fail(pids, &prev_p, p_fd));
+		manage_pipe_fds(&prev_p, p_fd, i, shell->parser->command_count);
 	}
-	return (finish_exec(pids, parsed->command_count, p_fd));
+	return (finish_exec(pids, shell->parser->command_count, p_fd));
 }

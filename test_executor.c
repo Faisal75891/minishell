@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 
-int execute_commands(t_parsed_result *parsed_result, t_shell *shell);
+int execute_commands(t_shell *shell);
 
 void	print_tokens(t_lex_result *lex)
 {
@@ -71,6 +71,7 @@ static int	run_one_case(t_shell *shell, t_lex_result *lex, char *cmd,
     printf("[%zu] %s\n", idx, cmd);
 
     shell->last_status = 0;
+    shell->parser = NULL;
 
     tokenize_lexer(cmd, lex);
     if (lex->error != 0)
@@ -88,14 +89,16 @@ static int	run_one_case(t_shell *shell, t_lex_result *lex, char *cmd,
         clear_lexer(lex);
         return (1);
     }
+    shell->parser = parsed;
 
     if (tokens)
         print_tokens(lex);
 
-    execute_commands(parsed, shell);
+    shell->last_status = execute_commands(shell);
     printf("exit_status: %d\n", shell->last_status);
 
     free_parser(parsed);
+    shell->parser = NULL;
     clear_lexer(lex);
     return (0);
 }
@@ -222,6 +225,9 @@ int	main(int argc, char **argv, char **envp)
     lex = init_lexer();
     if (!lex)
         return (free_split(shell->env), free(shell), 1);
+    shell->lexer = lex;
+    shell->parser = NULL;
+    tcgetattr(STDIN_FILENO, &shell->t_old);
 
     for (size_t i = from; i < to; i++)
     {

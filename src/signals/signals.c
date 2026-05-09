@@ -42,6 +42,23 @@ void	set_new_termios(int on)
 	tcsetattr(STDIN_FILENO, TCSANOW, &t);
 }
 
+int	handle_empty_signal(char *input, t_shell *shell, int status)
+{
+	if (status == SIGINT)
+	{
+		shell->last_status = status + 128;
+		set_last_signal(0);
+	}
+	else
+	{
+		set_last_signal(0);
+		return (0);
+	}
+	if (input)
+		free(input);
+	return (1);
+}
+
 void	new_signal_handler(void)
 {
 	struct sigaction	sa;

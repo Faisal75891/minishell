@@ -4,7 +4,7 @@ INCLUDES	= -I./include -I./libft
 SRC_DIR		= src
 LIBFT_DIR	= libft
 
-SRCS		= $(SRC_DIR)/main/new_main.c \
+SRCS		= test_executor.c \
               $(SRC_DIR)/main/init.c \
               $(SRC_DIR)/parsing/parser.c \
               $(SRC_DIR)/parsing/parser_init.c \

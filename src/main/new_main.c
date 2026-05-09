@@ -12,15 +12,15 @@
 
 #include "minishell.h"
 
-int	execute_builtin(t_commands *command, t_shell *shell)
+int	execute_builtin(t_shell *shell)
 {
 	char	**args;
 
-	if (command
-		&& command->argv
-		&& command->argv[0]
-		&& command->argv[0][0] != '\0')
-		args = command->argv;
+	if (shell && shell->parser && shell->parser->commands
+		&& shell->parser->commands->argv
+		&& shell->parser->commands->argv[0]
+		&& shell->parser->commands->argv[0][0] != '\0')
+		args = shell->parser->commands->argv;
 	else
 		return (-1);
 	if (!ft_strncmp(args[0], "cd", 3))
@@ -38,38 +38,20 @@ int	execute_builtin(t_commands *command, t_shell *shell)
 	return (-1);
 }
 
-int	handle_empty_signal(char *input, t_shell *shell, int status)
-{
-	if (status == SIGINT)
-	{
-		shell->last_status = status + 128;
-		set_last_signal(0);
-	}
-	else
-	{
-		set_last_signal(0);
-		return (0);
-	}
-	if (input)
-		free(input);
-	return (1);
-}
-
-static int	execute_command_or_builtin(t_parsed_result *p, t_shell *shell)
+static int	execute_command_or_builtin(t_shell *shell)
 {
 	int	builtins;
 
-	if (!p)
+	if (!shell || !shell->parser)
 		return (2);
-	builtins = execute_builtin(p->commands, shell);
+	builtins = execute_builtin(shell);
 	if (builtins != -1)
 		return (builtins);
-	return (execute_commands(p, shell));
+	return (execute_commands(shell));
 }
 
 static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 {
-	t_parsed_result		*p;
 	char				*input;
 	int					status;
 
@@ -84,24 +66,24 @@ static int	read_and_execute_command(t_lex_result *lexer, t_shell *shell)
 		return (0);
 	}
 	tokenize_lexer(input, lexer);
-	p = parser(lexer, shell);
-	shell->last_status = execute_command_or_builtin(p, shell);
+	shell->parser = parser(lexer, shell);
+	shell->last_status = execute_command_or_builtin(shell);
 	add_history(input);
 	clear_lexer(lexer);
-	free_parser(p);
+	free_parser(shell->parser);
+	shell->parser = NULL;
 	free(input);
 	return (1);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	struct termios		t_old;
 	t_lex_result		*lexer;
 	t_shell				*shell;
 
-	tcgetattr(STDIN_FILENO, &t_old);
 	if (!init_lexer_and_shell(&lexer, &shell, envp))
 		return (1);
+	tcgetattr(STDIN_FILENO, &shell->t_old);
 	(void) argc;
 	(void) argv;
 	while (1)
@@ -111,10 +93,6 @@ int	main(int argc, char **argv, char **envp)
 		if (!read_and_execute_command(lexer, shell))
 			break ;
 	}
-	tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
-	free_split(shell->env);
-	free(shell);
-	free(lexer);
-	clear_history();
+	cleanup_shell(shell);
 	return (0);
 }

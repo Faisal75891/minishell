@@ -6,7 +6,7 @@
 /*   By: fbaras <fbaras@student.42abudhabi.ae>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/15 01:45:04 by fbaras            #+#    #+#             */
-/*   Updated: 2026/05/08 01:19:44 by fbaras           ###   ########.fr       */
+/*   Updated: 2026/05/09 15:23:35 by fbaras           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ int	init_lexer_and_shell(t_lex_result **lexer,
 		free(*shell);
 		return (0);
 	}
+	(*shell)->lexer = *lexer;
+	(*shell)->parser = NULL;
 	return (1);
 }
 
@@ -72,5 +74,7 @@ t_shell	*init_shell(char **envp)
 		return (NULL);
 	}
 	shell->last_status = 0;
+	shell->lexer = NULL;
+	shell->parser = NULL;
 	return (shell);
 }

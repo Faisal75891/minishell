@@ -58,12 +58,16 @@ static int	check_operator_word(t_lex_result *lexer, const char *command, int i)
 	if (!command[i])
 	{
 		lexer->error = 3;
+		if (lexer->unexpected_token)
+			free(lexer->unexpected_token);
 		lexer->unexpected_token = ft_strdup("newline");
 		return (0);
 	}
 	if (is_operator_char(command[i]))
 	{
 		lexer->error = 3;
+		if (lexer->unexpected_token)
+			free(lexer->unexpected_token);
 		lexer->unexpected_token = ft_substr(command, i, 1);
 		return (0);
 	}
@@ -77,6 +81,8 @@ static int	check_last_token(t_lex_result *lexer)
 	if (lexer->head->type == TOK_PIPE)
 	{
 		lexer->error = 3;
+		if (lexer->unexpected_token)
+			free(lexer->unexpected_token);
 		lexer->unexpected_token = ft_strdup("|");
 		return (0);
 	}

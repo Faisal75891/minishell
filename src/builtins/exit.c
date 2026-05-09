@@ -42,17 +42,23 @@ static void	handle_exit_error(char *arg, int type)
 		ft_putendl_fd("too many arguments", 2);
 }
 
+static void	cleanup_and_exit(t_shell *shell, int status)
+{
+	cleanup_shell(shell);
+	exit(status);
+}
+
 int	ms_exit(t_shell *shell, char **args)
 {
 	int	status;
 
 	ft_putendl_fd("exit", 1);
 	if (!args[1])
-		exit(shell->last_status);
+		cleanup_and_exit(shell, shell->last_status);
 	if (!is_numeric(args[1]))
 	{
 		handle_exit_error(args[1], 1);
-		exit(255);
+		cleanup_and_exit(shell, 255);
 	}
 	if (args[2])
 	{
@@ -60,6 +66,5 @@ int	ms_exit(t_shell *shell, char **args)
 		return (1);
 	}
 	status = ft_atoi(args[1]);
-	clear_history();
-	exit(status % 256);
+	cleanup_and_exit(shell, status % 256);
 }

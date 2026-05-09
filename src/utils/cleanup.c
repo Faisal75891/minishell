@@ -12,19 +12,17 @@
 
 #include "minishell.h"
 
-void	free_split(char **arr)
+void	cleanup_shell(t_shell *shell)
 {
-	int	i;
-
-	i = 0;
-	if (!arr)
-		return ;
-	while (arr[i])
-	{
-		free(arr[i]);
-		i++;
-	}
-	free(arr);
+	clear_history();
+	if (shell->parser)
+		free_parser(shell->parser);
+	if (shell->lexer)
+		clear_lexer(shell->lexer);
+	free_split(shell->env);
+	free(shell->lexer);
+	tcsetattr(STDIN_FILENO, TCSANOW, &shell->t_old);
+	free(shell);
 }
 
 static void	free_cmd_argv(t_commands *cmd)
