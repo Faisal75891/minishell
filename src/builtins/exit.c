@@ -67,4 +67,5 @@ int	ms_exit(t_shell *shell, char **args)
 	}
 	status = ft_atoi(args[1]);
 	cleanup_and_exit(shell, status % 256);
+	return (1);
 }

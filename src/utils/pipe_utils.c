@@ -56,28 +56,3 @@ void	manage_pipe_fds(int *prev_pipe, int pipe_fd[2], int i, int count)
 		*prev_pipe = pipe_fd[0];
 	}
 }
-
-char	**ms_split_pipeline(char *command)
-{
-	char	**commands;
-	char	*trimmed_command;
-	int		i;
-
-	commands = ft_split(command, '|');
-	if (!commands)
-		return (NULL);
-	i = 0;
-	while (commands[i])
-	{
-		trimmed_command = ft_strtrim(commands[i], " \t\n\v\f\r");
-		if (!trimmed_command)
-		{
-			free_split(commands);
-			return (NULL);
-		}
-		free(commands[i]);
-		commands[i] = trimmed_command;
-		i++;
-	}
-	return (commands);
-}

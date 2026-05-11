@@ -36,9 +36,7 @@ static char	*expand_loop(const char *s, t_quote_type quote, t_shell *shell)
 {
 	int		i;
 	char	*res;
-	int		mode;
 
-	mode = 0;
 	res = ft_strdup("");
 	if (!res)
 		return (NULL);

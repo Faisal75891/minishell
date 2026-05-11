@@ -75,3 +75,12 @@ void	handle_error(t_lex_result *lexer)
 		ft_putendl_fd("'", 2);
 	}
 }
+
+int	exec_fail(int *pids, int *prev_p, int p_fd[2])
+{
+	close_if_open(prev_p);
+	close_if_open(&p_fd[0]);
+	close_if_open(&p_fd[1]);
+	free(pids);
+	return (1);
+}

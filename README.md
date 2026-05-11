@@ -1,75 +1,80 @@
-*This project has been created as part of the 42 curriculum by fbaras, samamaev AND COPILOT*
+*This project has been created as part of the 42 curriculum by fbaras, samamaev*
 
 # minishell 🐚
 
-## what is this
+## Description
 
-basic shell clone, bash but make it baby mode.
+- Minishell is a 42 school team project to create a basic shell program in C. It implements redirections and pipes, as well as environment variable expansions and the cd, echo, env, exit, export, pwd and unset builtin commands.
+
+- in short, it is a basic shell clone, bash but make it baby mode.
 
 ## Instructions
-
+git clone the project
+```bash
+git@vogsphere.42abudhabi.ae:vogsphere/intra-uuid-cf989cf4-6bd0-4a1b-91f0-cac1c3f0d7bb-7399502-fbaras
+```
+to compile
 ```bash
 make
+```
+to run the program
+```bash
 ./minishell
 ```
-### To exit
+To exit
 ```bash
-exit or CTRL-D
+type exit or press CTRL-D
 ```
 ### file structure
 
 ```
 src/
-├── main/           → entry point, main loop
-├── parsing/        → lexer, parser, quote/expansion flex
-├── execution/      → executor, pipes, redirects go brr
-├── builtins/       → cd, echo, pwd, export, unset, env, exit
-├── signals/        → Ctrl+C/D/\ handling
-└── utils/          → PATH search, env vars, cleanup, history
-include/            → minishell.h gang
-libft/              → custom C library (ft_* functions)
+├── main/
+├── parsing/
+├── execution/
+├── builtins/
+├── signals/
+└── utils/
+include/
+libft/
 ```
 
-### what actually works:
-- basic main loop with `readline("$ ")`
-- `t_shell` with:
-  - `env` copied from `envp`
-  - `last_status` tracked after every command/pipeline
+## Some features
 - variable expansion:
   - `$VAR` from `env`
   - `$?` from `shell->last_status`
   - `$$` from `getpid()`
-- argument handling:
-  - simple split by spaces (no quotes yet, cope)
-  - each arg goes through expansion
-- execution:
-  - builtins (`cd`, `echo`, `env`, etc.) bypass forks and run in the parent thread
-  - external commands dynamically translate through `PATH` env and run safely via `execve`
-  - pipelines via `run_pipeline` and `wait_all` (last command status bubbles up)
-- exit status logic:
-  - normal exit → code as is
-  - killed by signal → `128 + signal` (bash style)
 - Lexer:
   - Creates a linked list of command
-  - tokenizes input into tokens or words
-  - Each node has the type of token and the type of quote Which makes it easier to do variable expansions.
+  - tokenizes input into operators or words
 - Parser:
   - Parses the values inside the lexer.
   - It handles syntax errors in the command.
   - Commands are split into smaller parts.
   - Commands are split by the '|' delimiter
-  - each command has ints own argv, redirections array.
+  - each command has ints own argv and redirections array.
   - e.g:
   - Input: Cat > out.txt | grep a >> EOF | ls
   - Will become 3 commands split as follow: 
   -     argv 1: ["cat", NULL], redirections: [">", "out.txt"]
   -     argv 2: ["grep", "a", NULL], redirections: ["<<", "EOF"]
   -     argv 3: ["ls", NULL], redirections: NULL
-- New_executor :
-  - This new executor uses the new parsed structure
-  - It executes commands. typeshit.
-  - It still needs work like error detection and memory leaks.
 
-- New_main :
-  - Inside it is a todo list of all the shortcomings of the program.
-  - It uses new_executor and new parser.
+## Resources
+  ### Youtube Links
+  #### Core Dumped videos
+  - https://www.youtube.com/watch?v=SwIPOf2YAgI
+  - https://www.youtube.com/watch?v=m6WXrC9Mxzo&t=635s
+  - https://www.youtube.com/watch?v=Y2mDwW2pMv4
+  ### hhp3
+  - https://www.youtube.com/watch?v=ubt-UjcQUYg
+  - https://www.youtube.com/watch?v=ZjzMdsTWF0U&t=1411s
+  ### Bash Manual
+  - https://www.gnu.org/software/bash/manual/bash.html
+- https://www.cyberciti.biz/faq/linux-bash-exit-status-set-exit-statusin-bash/
+
+### AI Usage
+  - AI was used in many ways in the duration of this project, For example, It was very helpful to pinpoint bugs and speed up the debugging process. In addition, Ai Assisted in big refactors and assisted in making changes in all the files.
+  - Ai helped in providing ideas for the structure of the code, providing a feedback loop on how things should.
+  - Ai Provided great resources and was a huge help in finding the right information.
+  - Ai Helped in managing git branches and handling git merges without issues.

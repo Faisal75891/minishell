@@ -17,26 +17,24 @@ static void	exec_child(t_commands *command, t_shell *shell)
 	char	*full_command;
 	int		builtins;
 
-	if (!ft_strncmp(command->argv[0], "echo", 5))
+	if (!ft_strncmp(command->argv[0], "echo", 5)
+		|| !ft_strncmp(command->argv[0], "env", 4))
 	{
-		builtins = ms_echo(shell, command->argv);
+		if (!ft_strncmp(command->argv[0], "echo", 5))
+			builtins = ms_echo(shell, command->argv);
+		else
+			builtins = ms_env(shell, command->argv);
 		cleanup_shell(shell);
 		exit(builtins);
 	}
-	if (command->argv[0][0] == '\0')
+	full_command = get_full_command(command->argv[0], shell->env);
+	if (full_command)
 	{
-		full_command = ft_strdup(command->argv[0]);
-		if (!full_command)
-			exit(1);
+		execve(full_command, command->argv, shell->env);
+		free(full_command);
 	}
 	else
-	{
-		full_command = get_full_command(command->argv[0], shell->env);
-		if (!full_command)
-			execve(command->argv[0], command->argv, shell->env);
-	}
-	execve(full_command, command->argv, shell->env);
-	free(full_command);
+		execve(command->argv[0], command->argv, shell->env);
 	exit_error(command->argv[0]);
 }
 
@@ -78,15 +76,6 @@ static int	finish_exec(int *pids, int count, int p_fd[2])
 	close_if_open(&p_fd[1]);
 	free(pids);
 	return (status);
-}
-
-static int	exec_fail(int *pids, int *prev_p, int p_fd[2])
-{
-	close_if_open(prev_p);
-	close_if_open(&p_fd[0]);
-	close_if_open(&p_fd[1]);
-	free(pids);
-	return (1);
 }
 
 int	execute_commands(t_shell *shell)

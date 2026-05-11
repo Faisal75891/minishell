@@ -51,6 +51,8 @@ char	*get_full_command(char *command, char **environ)
 
 	if (ft_strchr(command, '/'))
 		return (ft_strdup(command));
+	if (command[0] == '\0')
+		return (ft_strdup(""));
 	paths = get_paths(environ);
 	full_path = get_full_path(command, paths);
 	if (paths)
